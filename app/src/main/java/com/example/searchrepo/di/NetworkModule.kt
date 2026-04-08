@@ -1,7 +1,7 @@
 package com.example.searchrepo.di
 
 import android.R.attr.level
-import com.example.searchrepo.data.GithubAPI
+import com.example.searchrepo.data.api.GithubAPI
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

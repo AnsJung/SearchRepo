@@ -1,9 +1,7 @@
-package com.example.searchrepo.data
+package com.example.searchrepo.data.api
 
 import com.example.searchrepo.data.model.ResponseRepos
-import retrofit2.Call
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface GithubAPI {
