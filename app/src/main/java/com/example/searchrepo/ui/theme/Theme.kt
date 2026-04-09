@@ -9,6 +9,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
@@ -18,19 +19,16 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+    primary = GitHubBlue,                // 프로젝트 이름 (Blue)
     onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+
+    background = Color.White,            // 전체 배경
+    onBackground = GitHubDark,           // 메인 텍스트 ("GitHub 레포지토리 검색", 유저명 등)
+
+    surfaceVariant = GitHubBgLight,      // 리스트 영역 배경 (연한 회색)
+    onSurfaceVariant = GitHubSecondary,  // 보조 텍스트 (날짜, 스타 수, 가이드 문구)
+
+    outlineVariant = GitHubBorder        // 아이템 테두리 선
 )
 
 @Composable
@@ -51,7 +49,7 @@ fun SearchRepoTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = LightColorScheme,
         typography = Typography,
         content = content
     )

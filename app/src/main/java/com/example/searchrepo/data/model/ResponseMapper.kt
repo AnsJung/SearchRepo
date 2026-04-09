@@ -7,13 +7,12 @@ fun Repo.toUiModel(): RepoUiModel {
         id = this.id,
         projectName = this.name,
         fullName = this.fullName,
-        description = this.description ?: "",
-        language = this.language ?: "",
+        description = this.description,
+        language = this.language,
         stargazersCount = this.stargazersCount,
         forksCount = this.forksCount,
         userName = this.owner.login,
         avatarUrl = this.owner.avatarUrl,
-//        updatedAt = formatGitHubDate(this.updatedAt)
-        updatedAt = ""
+        updatedAt = this.updatedAt
     )
 }

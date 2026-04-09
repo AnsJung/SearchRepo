@@ -1,56 +1,80 @@
 package com.example.searchrepo.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.runtime.*
-import androidx.compose.material3.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.searchrepo.ui.components.RepoItem
+import com.example.searchrepo.ui.components.SearchTextField
+import com.example.searchrepo.ui.model.RepoUiModel
 
 @Composable
 fun MainScreen(viewModel: RepoViewModel = hiltViewModel()) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    MainScreen(
+        state,
+        onSearchTextChanged = viewModel::onSearchTextChanged,
+        onSearchClick = viewModel::requestRepoList
+    )
+}
+
+@Composable
+private fun MainScreen(
+    state: RepoUiState,
+    onSearchTextChanged: (String) -> Unit,
+    onSearchClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
+            .background(MaterialTheme.colorScheme.background)
             .padding(top = 10.dp)
     ) {
-        val state by viewModel.uiState.collectAsStateWithLifecycle()
-
         Text(
             "GitHub 레포지토리 검색",
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(start = 10.dp)
         )
-        SearchTextField(state, viewModel)
+        SearchTextField(
+            state,
+            onSearchTextChanged = onSearchTextChanged,
+            onSearchClick = onSearchClick
+        )
         Spacer(Modifier.height(15.dp))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .background(Color(0xFFF1F3F5))
-                .padding(top = 10.dp),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
-            // 결과 리스트
+            RepoList(state.repos)
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
@@ -66,58 +90,12 @@ fun MainScreen(viewModel: RepoViewModel = hiltViewModel()) {
     }
 }
 
-@Composable
-fun SearchTextField(state: RepoUiState, viewModel: RepoViewModel) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(top = 15.dp, start = 10.dp, end = 10.dp)
-            .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(10.dp))
-            .padding(horizontal = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = "Search"
-        )
-        TextField(
-            value = state.searchText,
-            onValueChange = {
-                viewModel.onSearchTextChanged(it)
-            },
-            textStyle = TextStyle(
-                color = Color.Black,
-                fontSize = 15.sp
-            ),
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Search,
-            ),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    // 검색 로직 추가
-                    Log.e("JH", "검색 버튼 클릭")
-                    viewModel.requestRepoList()
-                }
-            ),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-            )
-        )
-    }
-}
 
 @Composable
 fun BoxScope.GuideText(text: String) {
     Text(
         text,
-        color = Color(0xFF6C757D),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 18.sp,
         modifier = Modifier
             .align(Alignment.TopCenter)
@@ -125,10 +103,33 @@ fun BoxScope.GuideText(text: String) {
     )
 }
 
+@Composable
+fun RepoList(repos: List<RepoUiModel>) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentPadding = PaddingValues(
+            bottom = 50.dp,
+            top = 5.dp
+        )
+    ) {
+        items(items = repos, key = { repo ->
+            repo.id
+        }) { repo ->
+            RepoItem(repo)
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun MainScreenPreview() {
     MaterialTheme {
-        MainScreen()
+        MainScreen(
+            state = RepoUiState(),
+            onSearchTextChanged = {},
+            onSearchClick = {}
+        )
     }
 }
+

@@ -66,4 +66,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
 }
