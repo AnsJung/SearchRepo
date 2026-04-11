@@ -28,7 +28,10 @@ private val LightColorScheme = lightColorScheme(
     surfaceVariant = GitHubBgLight,      // 리스트 영역 배경 (연한 회색)
     onSurfaceVariant = GitHubSecondary,  // 보조 텍스트 (날짜, 스타 수, 가이드 문구)
 
-    outlineVariant = GitHubBorder        // 아이템 테두리 선
+    outlineVariant = GitHubBorder,        // 아이템 테두리 선
+
+    secondaryContainer = GitHubTopicTagBg,
+    onSecondaryContainer = GitHubTopicTagText,
 )
 
 @Composable
