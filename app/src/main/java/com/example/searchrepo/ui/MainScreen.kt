@@ -1,6 +1,7 @@
 package com.example.searchrepo.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -20,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,12 +32,16 @@ import com.example.searchrepo.ui.components.SearchTextField
 import com.example.searchrepo.ui.model.RepoUiModel
 
 @Composable
-fun MainScreen(viewModel: RepoViewModel = hiltViewModel()) {
+fun MainScreen(
+    viewModel: MainViewModel = hiltViewModel(),
+    onNavigateToDetail: () -> Unit
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     MainScreen(
         state,
         onSearchTextChanged = viewModel::onSearchTextChanged,
-        onSearchClick = viewModel::requestRepoList
+        onSearchClick = viewModel::requestRepoList,
+        onNavigateToDetail = onNavigateToDetail
     )
 }
 
@@ -45,7 +49,8 @@ fun MainScreen(viewModel: RepoViewModel = hiltViewModel()) {
 private fun MainScreen(
     state: RepoUiState,
     onSearchTextChanged: (String) -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    onNavigateToDetail: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -74,7 +79,7 @@ private fun MainScreen(
                 .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
-            RepoList(state.repos)
+            RepoList(state.repos, onNavigateToDetail)
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
@@ -104,7 +109,7 @@ fun BoxScope.GuideText(text: String) {
 }
 
 @Composable
-fun RepoList(repos: List<RepoUiModel>) {
+fun RepoList(repos: List<RepoUiModel>, onNavigateToDetail: () -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
@@ -116,7 +121,9 @@ fun RepoList(repos: List<RepoUiModel>) {
         items(items = repos, key = { repo ->
             repo.id
         }) { repo ->
-            RepoItem(repo)
+            RepoItem(repo, Modifier.clickable {
+                onNavigateToDetail()
+            })
         }
     }
 }
@@ -128,7 +135,8 @@ private fun MainScreenPreview() {
         MainScreen(
             state = RepoUiState(),
             onSearchTextChanged = {},
-            onSearchClick = {}
+            onSearchClick = {},
+            onNavigateToDetail = {}
         )
     }
 }

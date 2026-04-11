@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RepoViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     private val githubRepository: GithubRepository
 ) : ViewModel() {
     // 내부에서만 수정 가능한 MutableStateFlow

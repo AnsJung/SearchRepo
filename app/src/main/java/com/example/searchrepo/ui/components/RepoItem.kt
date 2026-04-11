@@ -3,6 +3,7 @@ package com.example.searchrepo.ui.components
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -41,13 +41,13 @@ import com.example.searchrepo.ui.util.toRelativeTime
 import com.example.searchrepo.ui.util.toShortenedString
 
 @Composable
-fun RepoItem(item: RepoUiModel) {
+fun RepoItem(item: RepoUiModel, modifier: Modifier = Modifier) {
     Column(
-        Modifier
+        modifier
             .padding(vertical = 5.dp, horizontal = 15.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.background)
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant,
@@ -180,7 +180,7 @@ private fun RepoItemPreview() {
                     userName = "TestUserName",
                     avatarUrl = "",
                     updatedAt = "2026-02-26T08:25:15Z"
-                )
+                ),
         )
     }
 }
