@@ -3,6 +3,7 @@ package com.example.searchrepo.ui.util
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.Locale
 
 fun String.toRelativeTime(): String {
     return try {
@@ -25,6 +26,22 @@ fun String.toRelativeTime(): String {
             else -> "오늘" // 미래 날짜 대응
         }
     } catch (e: Exception) {
+        this
+    }
+}
+
+fun String.toKoreanDate(): String {
+    return try {
+        // 1. 서버에서 온 ISO 8601 문자열을 ZonedDateTime 객체로 파싱
+        val parsedDate = ZonedDateTime.parse(this)
+
+        // 2. 원하는 형태의 포맷 정의 (한국어 로케일 설정)
+        val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일", Locale.KOREAN)
+
+        // 3. 변환된 결과 반환
+        parsedDate.format(formatter)
+    } catch (e: Exception) {
+        // 파싱 실패 시 원본 문자열이나 빈 문자열 반환 (방어 코드)
         this
     }
 }
