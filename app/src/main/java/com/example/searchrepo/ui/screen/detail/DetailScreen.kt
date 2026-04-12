@@ -456,10 +456,32 @@ fun MoveArea(htmlUrl: String) {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "GitHub 상세 화면 프리뷰")
 @Composable
 private fun DetailScreenPreview() {
+    // JSON의 첫 번째 아이템 데이터를 기반으로 생성
+    val previewData = DetailRepoModel(
+        projectName = "AnimationCalendar",
+        userName = "AnsJung",
+        avatarUrl = "https://avatars.githubusercontent.com/u/77667819?v=4",
+        description = null,
+        stargazersCount = 1000,
+        forksCount = 20000,
+        watchersCount = 100,
+        openIssuesCount = 30,
+        language = "Kotlin",
+        defaultBranch = "master",
+        license = null,
+        createdAt = "2026-02-26T08:05:12Z",
+        updatedAt = "2026-02-26T08:25:15Z",
+        topics = emptyList(),
+        htmlUrl = "https://github.com/AnsJung/AnimationCalendar"
+    )
+
     MaterialTheme {
-        DetailScreen()
+        DetailScreen(
+            detailRepoModel = previewData,
+            onBackClick = { /* 테스트 시 로그 출력 등 */ }
+        )
     }
 }

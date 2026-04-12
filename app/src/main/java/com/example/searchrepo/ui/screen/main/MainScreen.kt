@@ -95,13 +95,16 @@ private fun MainScreen(
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
+            if (state.error != null && !state.isLoading) {
+                GuideText(text = "에러 발생: ${state.error}")
+            } else {
+                if (!state.hasSearched) {
+                    GuideText("검색어를 입력해주세요")
+                }
 
-            if (!state.hasSearched) {
-                GuideText("검색어를 입력해주세요")
-            }
-
-            if (state.hasSearched && !state.isLoading && state.repos.isEmpty()) {
-                GuideText("검색 결과가 없습니다")
+                if (state.hasSearched && !state.isLoading && state.repos.isEmpty()) {
+                    GuideText("검색 결과가 없습니다")
+                }
             }
         }
     }
@@ -146,11 +149,36 @@ fun RepoList(repos: List<MainRepoModel>, onNavigateToDetail: (Int) -> Unit) {
 private fun MainScreenPreview() {
     MaterialTheme {
         MainScreen(
-            state = RepoUiState(),
+            state = RepoUiState(
+                hasSearched = true,
+                repos = listOf(
+                    MainRepoModel(
+                        1,
+                        "Sample Project",
+                        "Javas",
+                        "Java",
+                        5000,
+                        1000,
+                        "Junghyeon",
+                        "",
+                        "",
+                    ),
+                    MainRepoModel(
+                        2,
+                        "Compose Study",
+                        "Search Repo",
+                        "Kotlin",
+                        100,
+                        500,
+                        "Android",
+                        "",
+                        "",
+                    )
+                )
+            ),
             onSearchTextChanged = {},
             onSearchClick = {},
-            onNavigateToDetail = {}
+            onNavigateToDetail = {} // 이제 (Int) -> Unit 타입에 맞게 동작
         )
     }
 }
-

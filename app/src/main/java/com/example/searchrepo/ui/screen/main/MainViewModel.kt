@@ -22,7 +22,7 @@ class MainViewModel @Inject constructor(
     private val githubRepository: GithubRepository
 ) : ViewModel() {
 
-    lateinit var originResponse: List<RepoUiModel>
+    private var originResponse: List<RepoUiModel> = emptyList()
     private val _uiState = MutableStateFlow(RepoUiState())
     val uiState: StateFlow<RepoUiState> = _uiState.asStateFlow()
 
@@ -32,7 +32,7 @@ class MainViewModel @Inject constructor(
 
     fun requestRepoList() {
         val query = _uiState.value.searchText
-        if (query.isBlank()) return
+        if (query.isBlank() || _uiState.value.isLoading) return
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null, hasSearched = true) }
