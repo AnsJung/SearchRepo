@@ -1,25 +1,26 @@
-package com.example.searchrepo.ui
+package com.example.searchrepo.ui.screen.detail
 
-import android.R.attr.label
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -30,9 +31,17 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.example.searchrepo.R
+import androidx.core.net.toUri
+import com.example.searchrepo.ui.util.GithubUtil
+import com.example.searchrepo.ui.util.toKoreanDate
+import com.example.searchrepo.ui.util.toRelativeTime
+import com.example.searchrepo.ui.util.toShortenedString
 
 @Composable
-fun DetailScreen() {
+fun DetailScreen(
+    detailRepoModel: DetailRepoModel = DetailRepoModel(),
+    onBackClick: () -> Unit = {}
+) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -49,13 +58,18 @@ fun DetailScreen() {
                 Icon(
                     Icons.AutoMirrored.Default.ArrowBack, contentDescription = null,
                     modifier = Modifier
+                        .clickable {
+                            onBackClick()
+                        }
                         .padding(start = 15.dp)
                         .size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(15.dp))
                 Text(
-                    "프로젝트명", fontWeight = FontWeight.Medium, fontSize = 20.sp,
-                    color = Color(0xff0a0a0a)
+                    detailRepoModel.projectName,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
         }) { paddingValues ->
@@ -64,22 +78,41 @@ fun DetailScreen() {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 15.dp)
                 .padding(top = 10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            OwnerArea()
-            DescriptionArea()
-            TopicsArea()
-            CountArea()
-            InfoArea()
-            MoveArea()
+            OwnerArea(detailRepoModel.avatarUrl, detailRepoModel.userName)
+            if (!detailRepoModel.description.isNullOrBlank()) {
+                DescriptionArea(detailRepoModel.description)
+            }
+            if (detailRepoModel.topics.isNotEmpty()) {
+                TopicsArea(detailRepoModel.topics)
+            }
+            CountArea(
+                detailRepoModel.stargazersCount,
+                detailRepoModel.forksCount,
+                detailRepoModel.watchersCount,
+                detailRepoModel.openIssuesCount
+            )
+            InfoArea(
+                detailRepoModel.language,
+                detailRepoModel.defaultBranch,
+                detailRepoModel.license,
+                detailRepoModel.createdAt,
+                detailRepoModel.updatedAt
+            )
+            MoveArea(
+                detailRepoModel.htmlUrl
+            )
         }
     }
 }
 
 @Composable
-fun OwnerArea() {
+fun OwnerArea(avatarUrl: String, userName: String) {
+    var isImageVisible by remember { mutableStateOf(true) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -95,21 +128,23 @@ fun OwnerArea() {
             .padding(16.dp)
     )
     {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data("")
-                .build(),
-            error = painterResource(R.drawable.ic_launcher_foreground),
-            contentDescription = "유저 아이콘",
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop,
-            onError = { error ->
-                Log.e("JH", error.result.throwable.toString())
-            }
-        )
-        Spacer(Modifier.width(5.dp))
+        if (isImageVisible) {
+            AsyncImage(
+                model = avatarUrl,
+                error = painterResource(R.drawable.ic_launcher_foreground),
+                contentDescription = "유저 아이콘",
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop,
+                onError = { error ->
+                    Log.e("JH", error.result.throwable.toString())
+                    isImageVisible = false
+                }
+            )
+
+        }
+        Spacer(Modifier.width(10.dp))
         Column {
             Text(
                 "소유자",
@@ -117,7 +152,8 @@ fun OwnerArea() {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                "유저 네임", fontSize = 16.sp,
+                userName,
+                fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Medium
             )
@@ -126,7 +162,7 @@ fun OwnerArea() {
 }
 
 @Composable
-fun DescriptionArea() {
+fun DescriptionArea(description: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -142,14 +178,15 @@ fun DescriptionArea() {
             .padding(16.dp)
     ) {
         Text(
-            "Description", color = MaterialTheme.colorScheme.onBackground,
+            description,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 16.sp
         )
     }
 }
 
 @Composable
-fun TopicsArea() {
+fun TopicsArea(topics: List<String>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -172,26 +209,35 @@ fun TopicsArea() {
         FlowRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
+                .wrapContentHeight(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Text(
-                text = "android",
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = CircleShape
-                    )
-                    .padding(horizontal = 10.dp, vertical = 2.dp)
-            )
+            topics.forEach { text ->
+                Text(
+                    text = text,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = CircleShape
+                        )
+                        .padding(horizontal = 10.dp, vertical = 2.dp)
+                )
+            }
         }
     }
 }
 
 @Composable
-fun CountArea() {
+fun CountArea(
+    stargazersCount: Int,
+    forksCount: Int,
+    watchersCount: Int,
+    openIssuesCount: Int
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -209,16 +255,15 @@ fun CountArea() {
         Row(modifier = Modifier.fillMaxWidth()) {
             StatItem(
                 iconResId = R.drawable.ic_git_star,
-                iconColor = Color(0xffEAB308),
                 label = "Stars",
-                value = "100",
+                value = stargazersCount,
                 modifier = Modifier.weight(1f)
             )
             StatItem(
                 iconResId = R.drawable.ic_git_fork,
                 iconColor = Color.Gray,
                 label = "Forks",
-                value = "129",
+                value = forksCount,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -227,14 +272,14 @@ fun CountArea() {
                 iconResId = R.drawable.ic_git_eye,
                 iconColor = Color.Gray,
                 label = "Watchers",
-                value = "129",
+                value = watchersCount,
                 modifier = Modifier.weight(1f)
             )
             StatItem(
                 iconResId = R.drawable.ic_issues,
                 iconColor = Color.Gray,
                 label = "Issues",
-                value = "129",
+                value = openIssuesCount,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -244,9 +289,9 @@ fun CountArea() {
 @Composable
 fun StatItem(
     @DrawableRes iconResId: Int,
-    iconColor: Color,
+    iconColor: Color? = null,
     label: String,
-    value: String,
+    value: Int,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -256,19 +301,25 @@ fun StatItem(
         Icon(
             painter = painterResource(id = iconResId),
             contentDescription = null,
-            tint = iconColor,
+            tint = iconColor ?: Color.Unspecified,
             modifier = Modifier.size(24.dp)
         )
         Spacer(modifier = Modifier.width(12.dp))
         Column {
             Text(text = label, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
-            Text(text = value, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(text = value.toShortenedString(), fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }
 
 @Composable
-fun InfoArea() {
+fun InfoArea(
+    language: String?,
+    defaultBranch: String,
+    license: String?,
+    createdAt: String,
+    updatedAt: String
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -283,34 +334,39 @@ fun InfoArea() {
             )
             .padding(16.dp),
     ) {
-        InfoRow(
-            languageColor = Color(0xFF3572A5), // C 언어의 파란색 점
-            label = "언어",
-            value = "C"
-        )
+        language?.let {
+            InfoRow(
+                languageColor = GithubUtil.getLanguageColor(it), // C 언어의 파란색 점
+                label = "언어",
+                value = it
+            )
+        }
         InfoRow(
             iconResId = R.drawable.ic_git_branch, // 아까 저장한 브랜치 아이콘
             label = "기본 브랜치",
-            value = "master"
+            value = defaultBranch
         )
-        InfoRow(
-            // 라이선스 아이콘이 별도로 없다면 ic_issues 등을 활용하거나 빈 박스 처리
-            iconResId = R.drawable.ic_issues,
-            label = "라이선스",
-            value = "Apache License 2.0"
-        )
+        license?.let {
+            InfoRow(
+                // 라이선스 아이콘이 별도로 없다면 ic_issues 등을 활용하거나 빈 박스 처리
+                iconResId = R.drawable.ic_issues,
+                label = "라이선스",
+                value = it
+            )
+        }
         InfoRow(
             iconResId = R.drawable.ic_calendar, // 아까 저장한 달력 아이콘
             label = "생성일",
-            value = "2017년 11월 22일"
+            value = createdAt.toKoreanDate()
         )
         InfoRow(
             iconResId = R.drawable.ic_calendar,
             label = "최근 업데이트",
-            value = "2026년 4월 11일"
+            value = updatedAt.toKoreanDate()
         )
     }
 }
+
 @Composable
 fun InfoRow(
     modifier: Modifier = Modifier,
@@ -364,11 +420,20 @@ fun InfoRow(
         )
     }
 }
+
 @Composable
-fun MoveArea() {
+fun MoveArea(htmlUrl: String) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    htmlUrl.toUri()
+                )
+                context.startActivity(intent)
+            }
             .background(
                 MaterialTheme.colorScheme.background,
                 shape = RoundedCornerShape(10.dp)

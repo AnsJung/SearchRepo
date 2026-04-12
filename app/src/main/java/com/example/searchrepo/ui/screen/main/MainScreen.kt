@@ -1,5 +1,7 @@
-package com.example.searchrepo.ui
+package com.example.searchrepo.ui.screen.main
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,19 +32,28 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.searchrepo.ui.components.RepoItem
 import com.example.searchrepo.ui.components.SearchTextField
-import com.example.searchrepo.ui.model.RepoUiModel
+import com.example.searchrepo.ui.screen.detail.DetailRepoModel
 
 @Composable
 fun MainScreen(
     viewModel: MainViewModel = hiltViewModel(),
-    onNavigateToDetail: () -> Unit
+    onNavigateToDetail: (DetailRepoModel) -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     MainScreen(
         state,
         onSearchTextChanged = viewModel::onSearchTextChanged,
         onSearchClick = viewModel::requestRepoList,
-        onNavigateToDetail = onNavigateToDetail
+        onNavigateToDetail = { id ->
+            val detailRepoModel = viewModel.getDetailItem(id)
+            if (detailRepoModel != null) {
+                onNavigateToDetail(detailRepoModel)
+            } else {
+                Toast.makeText(context, "다음 화면으로 이동할 수 없습니다.", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
     )
 }
 
@@ -50,7 +62,7 @@ private fun MainScreen(
     state: RepoUiState,
     onSearchTextChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
-    onNavigateToDetail: () -> Unit
+    onNavigateToDetail: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -109,7 +121,7 @@ fun BoxScope.GuideText(text: String) {
 }
 
 @Composable
-fun RepoList(repos: List<RepoUiModel>, onNavigateToDetail: () -> Unit) {
+fun RepoList(repos: List<MainRepoModel>, onNavigateToDetail: (Int) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
@@ -122,7 +134,8 @@ fun RepoList(repos: List<RepoUiModel>, onNavigateToDetail: () -> Unit) {
             repo.id
         }) { repo ->
             RepoItem(repo, Modifier.clickable {
-                onNavigateToDetail()
+                Log.e("JH", "repo id >> ${repo.id}")
+                onNavigateToDetail(repo.id)
             })
         }
     }

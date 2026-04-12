@@ -13,11 +13,9 @@ data class ResponseRepos(
 data class Repo(
     val id: Int,
     val name: String,
-    @SerializedName("full_name")
-    val fullName: String,
     val description: String?,
-//    @SerializedName("html_url")
-//    val htmlUrl: String
+    @SerializedName("html_url")
+    val htmlUrl: String,
     val language: String?,
     @SerializedName("stargazers_count")
     val stargazersCount: Int,
@@ -26,7 +24,21 @@ data class Repo(
     @SerializedName("owner")
     val owner: Owner,
     @SerializedName("updated_at")
-    val updatedAt: String
+    val updatedAt: String,
+    val topics: List<String>,
+    @SerializedName("watchers_count")
+    val watchersCount: Int,
+    @SerializedName("open_issues")
+    val openIssuesCount: Int,
+    val license: License?,
+    @SerializedName("default_branch")
+    val defaultBranch: String,
+    @SerializedName("created_at")
+    val createdAt: String
+)
+
+data class License(
+    val name: String?,
 )
 
 data class Owner(

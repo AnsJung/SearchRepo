@@ -3,7 +3,6 @@ package com.example.searchrepo.ui.components
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,13 +34,13 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.example.searchrepo.R
-import com.example.searchrepo.ui.model.RepoUiModel
+import com.example.searchrepo.ui.screen.main.MainRepoModel
 import com.example.searchrepo.ui.util.GithubUtil
 import com.example.searchrepo.ui.util.toRelativeTime
 import com.example.searchrepo.ui.util.toShortenedString
 
 @Composable
-fun RepoItem(item: RepoUiModel, modifier: Modifier = Modifier) {
+fun RepoItem(item: MainRepoModel, modifier: Modifier = Modifier) {
     Column(
         modifier
             .padding(vertical = 5.dp, horizontal = 15.dp)
@@ -169,10 +168,9 @@ private fun RepoItemPreview() {
     MaterialTheme {
         RepoItem(
             item =
-                RepoUiModel(
+                MainRepoModel(
                     id = 1,
                     projectName = "Test projectName",
-                    fullName = "Test",
                     description = "Test description",
                     language = "Kotlin",
                     stargazersCount = 3000,
