@@ -65,7 +65,35 @@ class MainViewModel @Inject constructor(
 
     fun getDetailItem(id: Int): DetailRepoModel? {
         Log.e("JH", "id >> $id")
-        return originResponse.find { it.id == id }?.toDetailModel()
+        return originResponse.find { it.id == id }
+            ?.toDetailModel()
+    }
+
+    fun refreshSearched() {
+        if (_uiState.value.isLoading) return
+        if (_uiState.value.searchText.isBlank() && _uiState.value.repos.isEmpty()) {
+            _uiState.update {
+                it.copy(
+                    showGuideDialog = true
+                )
+            }
+            return
+        }
+        _uiState.update {
+            it.copy(
+                searchText = "",
+                repos = emptyList(),
+                hasSearched = false
+            )
+        }
+    }
+
+    fun onDialogDismiss(){
+        _uiState.update {
+            it.copy(
+                showGuideDialog = false
+            )
+        }
     }
 }
 
@@ -74,5 +102,6 @@ data class RepoUiState(
     val isLoading: Boolean = false,
     val hasSearched: Boolean = false,
     val repos: List<MainRepoModel> = emptyList(),
-    val error: String? = null
+    val error: String? = null,
+    val showGuideDialog: Boolean = false
 )

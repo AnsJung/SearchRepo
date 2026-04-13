@@ -8,15 +8,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,15 +28,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.searchrepo.R
+import com.example.searchrepo.ui.components.CustomDialog
 import com.example.searchrepo.ui.components.RepoItem
 import com.example.searchrepo.ui.components.SearchTextField
 import com.example.searchrepo.ui.screen.detail.DetailRepoModel
+import com.example.searchrepo.ui.theme.SearchRepoTheme
 
 @Composable
 fun MainScreen(
@@ -53,8 +61,22 @@ fun MainScreen(
                 Toast.makeText(context, "다음 화면으로 이동할 수 없습니다.", Toast.LENGTH_SHORT)
                     .show()
             }
-        }
+        },
+        onRefreshSearched = viewModel::refreshSearched
     )
+    if (state.showGuideDialog) {
+        CustomDialog(
+            onDismissRequest = {
+                viewModel.onDialogDismiss()
+            },
+            onConfirm = {
+                viewModel.onDialogDismiss()
+            },
+            confirmBtnColor = MaterialTheme.colorScheme.primary,
+            title = "알림",
+            message = "지울 내용이 없습니다.\n먼저 키워드를 입력해 보세요."
+        )
+    }
 }
 
 @Composable
@@ -62,7 +84,8 @@ private fun MainScreen(
     state: RepoUiState,
     onSearchTextChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
-    onNavigateToDetail: (Int) -> Unit
+    onNavigateToDetail: (Int) -> Unit,
+    onRefreshSearched: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -71,19 +94,62 @@ private fun MainScreen(
             .background(MaterialTheme.colorScheme.background)
             .padding(top = 10.dp)
     ) {
-        Text(
-            "GitHub 레포지토리 검색",
-            color = MaterialTheme.colorScheme.onBackground,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 10.dp)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "GitHub 레포지토리 검색",
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 10.dp)
+            )
+            Spacer(Modifier.weight(1f))
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable {
+                        onRefreshSearched()
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_refresh),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Spacer(Modifier.width(10.dp))
+
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable {
+
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_set_dark),
+                    contentDescription = "다크모드 전환 버튼",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Spacer(Modifier.width(10.dp))
+        }
+
         SearchTextField(
             state,
             onSearchTextChanged = onSearchTextChanged,
             onSearchClick = onSearchClick
         )
-        Spacer(Modifier.height(15.dp))
+        Spacer(
+            Modifier
+                .height(15.dp)
+                .background(MaterialTheme.colorScheme.background)
+        )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -147,7 +213,7 @@ fun RepoList(repos: List<MainRepoModel>, onNavigateToDetail: (Int) -> Unit) {
 @Preview(showBackground = true)
 @Composable
 private fun MainScreenPreview() {
-    MaterialTheme {
+    SearchRepoTheme {
         MainScreen(
             state = RepoUiState(
                 hasSearched = true,
@@ -178,7 +244,8 @@ private fun MainScreenPreview() {
             ),
             onSearchTextChanged = {},
             onSearchClick = {},
-            onNavigateToDetail = {} // 이제 (Int) -> Unit 타입에 맞게 동작
+            onNavigateToDetail = {}, // 이제 (Int) -> Unit 타입에 맞게 동작,
+            {}
         )
     }
 }

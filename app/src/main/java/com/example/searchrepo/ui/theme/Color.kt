@@ -17,3 +17,4 @@ val GitHubBgLight = Color(0xFFF9FAFB)    // 리스트 배경용
 val GitHubBlue = Color(0xFF2F80ED)       // 프로젝트 이름/포인트 컬러
 val GitHubTopicTagText = Color(0xFF1447e6)      // 토픽 텍스트 컬러
 val GitHubTopicTagBg = Color(0xFFeff6ff)      // 토픽 텍스트 배경
+val GitHubDialogText= Color(0xFF4a5565)       // 팝업 텍스트
