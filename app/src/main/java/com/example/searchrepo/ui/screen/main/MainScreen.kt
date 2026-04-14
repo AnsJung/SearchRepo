@@ -22,11 +22,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,17 +42,21 @@ import com.example.searchrepo.ui.components.CustomDialog
 import com.example.searchrepo.ui.components.RepoItem
 import com.example.searchrepo.ui.components.SearchTextField
 import com.example.searchrepo.ui.screen.detail.DetailRepoModel
+import com.example.searchrepo.ui.theme.GitHubDialogText
 import com.example.searchrepo.ui.theme.SearchRepoTheme
 
 @Composable
 fun MainScreen(
     viewModel: MainViewModel = hiltViewModel(),
-    onNavigateToDetail: (DetailRepoModel) -> Unit
+    onNavigateToDetail: (DetailRepoModel) -> Unit,
+    isDarkMode: Boolean,
+    onChangeTheme: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     MainScreen(
         state,
+        isDarkMode,
         onSearchTextChanged = viewModel::onSearchTextChanged,
         onSearchClick = viewModel::requestRepoList,
         onNavigateToDetail = { id ->
@@ -62,7 +68,8 @@ fun MainScreen(
                     .show()
             }
         },
-        onRefreshSearched = viewModel::refreshSearched
+        onRefreshSearched = viewModel::refreshSearched,
+        onChangeTheme = onChangeTheme
     )
     if (state.showGuideDialog) {
         CustomDialog(
@@ -82,100 +89,111 @@ fun MainScreen(
 @Composable
 private fun MainScreen(
     state: RepoUiState,
+    isDarkMode: Boolean,
     onSearchTextChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
     onNavigateToDetail: (Int) -> Unit,
-    onRefreshSearched: () -> Unit
+    onRefreshSearched: () -> Unit,
+    onChangeTheme: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(top = 10.dp)
+    val themeIcon = if (isDarkMode) R.drawable.ic_set_light else R.drawable.ic_set_dark
+    val themeContentDescription = if (isDarkMode) "라이트 모드" else "다크 모드"
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.onPrimary
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                "GitHub 레포지토리 검색",
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 10.dp)
-            )
-            Spacer(Modifier.weight(1f))
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clickable {
-                        onRefreshSearched()
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_refresh),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-            Spacer(Modifier.width(10.dp))
-
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clickable {
-
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_set_dark),
-                    contentDescription = "다크모드 전환 버튼",
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-            Spacer(Modifier.width(10.dp))
-        }
-
-        SearchTextField(
-            state,
-            onSearchTextChanged = onSearchTextChanged,
-            onSearchClick = onSearchClick
-        )
-        Spacer(
-            Modifier
-                .height(15.dp)
+                .fillMaxSize()
+                .statusBarsPadding()
                 .background(MaterialTheme.colorScheme.background)
+                .padding(top = 10.dp)
         )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            RepoList(state.repos, onNavigateToDetail)
-            if (state.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
-            if (state.error != null && !state.isLoading) {
-                GuideText(text = "에러 발생: ${state.error}")
-            } else {
-                if (!state.hasSearched) {
-                    GuideText("검색어를 입력해주세요")
+        {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "GitHub 레포지토리 검색",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = 10.dp)
+                )
+                Spacer(Modifier.weight(1f))
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable {
+                            onRefreshSearched()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_refresh),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = if (isDarkMode) Color.Gray else Color.Black
+                    )
                 }
+                Spacer(Modifier.width(10.dp))
 
-                if (state.hasSearched && !state.isLoading && state.repos.isEmpty()) {
-                    GuideText("검색 결과가 없습니다")
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable {
+                            onChangeTheme()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(themeIcon),
+                        contentDescription = themeContentDescription,
+                        modifier = Modifier.size(20.dp),
+                        tint = if (isDarkMode) Color(0xffFBBF24) else Color.Unspecified
+                    )
+                }
+                Spacer(Modifier.width(10.dp))
+            }
+
+            SearchTextField(
+                state,
+                onSearchTextChanged = onSearchTextChanged,
+                onSearchClick = onSearchClick
+            )
+            Spacer(
+                Modifier
+                    .height(15.dp)
+                    .background(MaterialTheme.colorScheme.background)
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                RepoList(state.repos, onNavigateToDetail)
+                if (state.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+                if (state.error != null && !state.isLoading) {
+                    GuideText(text = "에러 발생: ${state.error}")
+                } else {
+                    if (!state.hasSearched) {
+                        GuideText("검색어를 입력해주세요")
+                    }
+
+                    if (state.hasSearched && !state.isLoading && state.repos.isEmpty()) {
+                        GuideText("검색 결과가 없습니다")
+                    }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun BoxScope.GuideText(text: String) {
@@ -245,7 +263,9 @@ private fun MainScreenPreview() {
             onSearchTextChanged = {},
             onSearchClick = {},
             onNavigateToDetail = {}, // 이제 (Int) -> Unit 타입에 맞게 동작,
-            {}
+            isDarkMode = false,
+            onRefreshSearched = {},
+            onChangeTheme = {}
         )
     }
 }

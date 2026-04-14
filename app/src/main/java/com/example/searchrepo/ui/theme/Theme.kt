@@ -17,9 +17,23 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = GitHubDarkAccentBlue,      // 레포지토리 이름
+    onPrimary = Color.Black,
+
+    background = GitHubDarkBg,           // 전체 배경
+    onBackground = GitHubDarkTextPrimary, // "GitHub 레포지토리 검색" 제목
+
+    surface = GitHubDarkSurface,         // 카드 배경
+    onSurface = GitHubDarkTextPrimary,    // 카드 내 메인 텍스트
+
+    surfaceVariant = GitHubDarkSurface,   // 리스트 아이템 배경
+    onSurfaceVariant = GitHubDarkTextSecondary, // 카드 내 설명 및 하단 정보
+
+    outline = GitHubDarkBorder,           // 카드 테두리 (Border)
+
+    secondaryContainer = GitHubDarkTagBg, // 토픽 태그 배경
+    onSecondaryContainer = GitHubDarkTagText, // 토픽 태그 텍스트
+    tertiary = GitHubDarkTFBg
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -36,13 +50,13 @@ private val LightColorScheme = lightColorScheme(
 
     secondaryContainer = GitHubTopicTagBg,
     onSecondaryContainer = GitHubTopicTagText,
+    tertiary = Color.White
 )
-
 @Composable
 fun SearchRepoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // GitHub 테마를 고정해서 사용하기 위해 기본값을 false로 변경하는 것을 권장합니다.
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -50,10 +64,21 @@ fun SearchRepoTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+
+    // 상태바 색상 제어 로직 추가
+    val view = LocalView.current
+// Theme.kt의 SearchRepoTheme 내부
+    SideEffect {
+        val window = (view.context as Activity).window
+        val insetsController = WindowCompat.getInsetsController(window, view)
+
+        // 배경색 설정은 이제 의미가 없으므로 아이콘 색상에만 집중합니다.
+        insetsController.isAppearanceLightStatusBars = !darkTheme
+    }
+
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,

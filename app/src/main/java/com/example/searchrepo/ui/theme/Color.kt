@@ -18,3 +18,19 @@ val GitHubBlue = Color(0xFF2F80ED)       // 프로젝트 이름/포인트 컬러
 val GitHubTopicTagText = Color(0xFF1447e6)      // 토픽 텍스트 컬러
 val GitHubTopicTagBg = Color(0xFFeff6ff)      // 토픽 텍스트 배경
 val GitHubDialogText= Color(0xFF4a5565)       // 팝업 텍스트
+
+// 다크모드
+// 배경 및 카드 색상
+val GitHubDarkBg = Color(0xFF1e2938)      // 최하단 배경
+val GitHubDarkSurface = Color(0xFF111828)  // 리스트 카드 배경
+val GitHubDarkBorder = Color(0xFF30363D)   // 카드 테두리 선
+val GitHubDarkTFBg = Color(0xFF364152)   // 텍스트 필드 배경
+
+// 텍스트 색상
+val GitHubDarkTextPrimary = Color(0xFFE6EDF3)   // 메인 제목, 유저명
+val GitHubDarkTextSecondary = Color(0xFF8B949E) // 설명글, 스타 수, 날짜
+
+// 포인트 및 태그 색상
+val GitHubDarkAccentBlue = Color(0xFF2F81F7)    // 레포지토리 이름 (파란색)
+val GitHubDarkTagBg = Color(0xFF1F6FEB).copy(alpha = 0.15f) // 토픽 배경
+val GitHubDarkTagText = Color(0xFF58A6FF)       // 토픽 글자색

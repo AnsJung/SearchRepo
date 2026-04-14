@@ -34,38 +34,52 @@ fun SearchTextField(
     onSearchClick: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            // 1. 배경색을 테마에 맞게 (라이트: 흰색, 다크: 짙은 네이비)
             .padding(top = 15.dp, start = 10.dp, end = 10.dp)
-            .border(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant, shape = RoundedCornerShape(10.dp))
+            // 2. 테두리 색상도 테마의 outlineVariant를 따름
+            .background(
+                color = MaterialTheme.colorScheme.tertiary, // Color(0xFF364152)
+                shape = RoundedCornerShape(10.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(10.dp)
+            )
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = Icons.Default.Search,
-            contentDescription = "Search"
+            contentDescription = "Search",
+            // 3. 아이콘 색상도 테마에 반응하도록 설정
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         TextField(
             value = state.searchText,
             placeholder = {
-                Text("레포지토리 검색...")
+                Text(
+                    text = "레포지토리 검색...",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                )
             },
             onValueChange = onSearchTextChanged,
             textStyle = TextStyle(
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                // 4. 입력되는 글자 색상
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 15.sp
             ),
             singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Search,
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    // 검색 로직 추가
                     Log.e("JH", "검색 버튼 클릭")
                     focusManager.clearFocus()
                     onSearchClick()
@@ -77,7 +91,11 @@ fun SearchTextField(
                 disabledContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                cursorColor = MaterialTheme.colorScheme.primary
+                // 5. 커서 색상은 포인트 컬러인 Blue로 유지
+                cursorColor = MaterialTheme.colorScheme.primary,
+                // 입력 텍스트 색상도 명시적으로 지정 가능
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
             )
         )
     }

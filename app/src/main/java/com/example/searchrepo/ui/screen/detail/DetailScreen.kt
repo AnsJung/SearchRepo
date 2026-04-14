@@ -42,72 +42,79 @@ fun DetailScreen(
     detailRepoModel: DetailRepoModel = DetailRepoModel(),
     onBackClick: () -> Unit = {}
 ) {
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .navigationBarsPadding()
-            .statusBarsPadding(),
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(70.dp)
-                    .background(MaterialTheme.colorScheme.background),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Default.ArrowBack, contentDescription = null,
-                    modifier = Modifier
-                        .clickable {
-                            onBackClick()
-                        }
-                        .padding(start = 15.dp)
-                        .size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(15.dp))
-                Text(
-                    detailRepoModel.projectName,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
-        }) { paddingValues ->
-        Column(
+    Surface(
+        color = MaterialTheme.colorScheme.onPrimary,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Scaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 15.dp)
-                .padding(top = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            OwnerArea(detailRepoModel.avatarUrl, detailRepoModel.userName)
-            if (!detailRepoModel.description.isNullOrBlank()) {
-                DescriptionArea(detailRepoModel.description)
+                .navigationBarsPadding()
+                .statusBarsPadding(),
+            topBar = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .background(MaterialTheme.colorScheme.background),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Default.ArrowBack, contentDescription = null,
+                        modifier = Modifier
+                            .clickable {
+                                onBackClick()
+                            }
+                            .padding(start = 15.dp)
+                            .size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(15.dp))
+                    Text(
+                        detailRepoModel.projectName,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            })
+        { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 15.dp)
+                    .padding(top = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                OwnerArea(detailRepoModel.avatarUrl, detailRepoModel.userName)
+                if (!detailRepoModel.description.isNullOrBlank()) {
+                    DescriptionArea(detailRepoModel.description)
+                }
+                if (detailRepoModel.topics.isNotEmpty()) {
+                    TopicsArea(detailRepoModel.topics)
+                }
+                CountArea(
+                    detailRepoModel.stargazersCount,
+                    detailRepoModel.forksCount,
+                    detailRepoModel.watchersCount,
+                    detailRepoModel.openIssuesCount
+                )
+                InfoArea(
+                    detailRepoModel.language,
+                    detailRepoModel.defaultBranch,
+                    detailRepoModel.license,
+                    detailRepoModel.createdAt,
+                    detailRepoModel.updatedAt
+                )
+                MoveArea(
+                    detailRepoModel.htmlUrl
+                )
             }
-            if (detailRepoModel.topics.isNotEmpty()) {
-                TopicsArea(detailRepoModel.topics)
-            }
-            CountArea(
-                detailRepoModel.stargazersCount,
-                detailRepoModel.forksCount,
-                detailRepoModel.watchersCount,
-                detailRepoModel.openIssuesCount
-            )
-            InfoArea(
-                detailRepoModel.language,
-                detailRepoModel.defaultBranch,
-                detailRepoModel.license,
-                detailRepoModel.createdAt,
-                detailRepoModel.updatedAt
-            )
-            MoveArea(
-                detailRepoModel.htmlUrl
-            )
         }
     }
+
 }
 
 @Composable

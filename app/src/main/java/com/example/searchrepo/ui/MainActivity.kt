@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,28 +27,39 @@ import kotlin.reflect.typeOf
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.auto(
-                lightScrim = android.graphics.Color.WHITE, // 라이트모드 배경
-                darkScrim = android.graphics.Color.BLACK   // 다크모드 배경
-            )
-        )
+        enableEdgeToEdge()
         setContent {
-            SearchRepoTheme {
+            var isDarkMode by remember { mutableStateOf(
+                false) }
+            LaunchedEffect(isDarkMode) {
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.auto(
+                        lightScrim = android.graphics.Color.TRANSPARENT,
+                        darkScrim = android.graphics.Color.TRANSPARENT,
+                        detectDarkMode = { isDarkMode } // 현재 모드 강제 지정
+                    )
+                )
+            }
+            SearchRepoTheme(darkTheme = isDarkMode) {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = Route.Main) {
-                    composable<Route.Main>{
-                        MainScreen(onNavigateToDetail = { detailRepoModel ->
-                            navController.navigate(Route.Detail(detailRepoModel))
-                        })
+                    composable<Route.Main> {
+                        MainScreen(
+                            isDarkMode = isDarkMode,
+                            onNavigateToDetail = { detailRepoModel ->
+                                navController.navigate(Route.Detail(detailRepoModel))
+                            },
+                            onChangeTheme = {
+                                isDarkMode = !isDarkMode
+                            })
                     }
                     composable<Route.Detail>(
                         typeMap = mapOf(
                             typeOf<DetailRepoModel>() to createNaveType<DetailRepoModel>()
                         )
-                    ){ backstackEntry ->
+                    ) { backstackEntry ->
                         val detailRoute = backstackEntry.toRoute<Route.Detail>()
-                        DetailScreen(detailRoute.detailRepoModel){
+                        DetailScreen(detailRoute.detailRepoModel) {
                             navController.popBackStack()
                         }
                     }
