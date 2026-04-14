@@ -66,7 +66,8 @@ fun DetailScreen(
                                 onBackClick()
                             }
                             .padding(start = 15.dp)
-                            .size(24.dp)
+                            .size(24.dp),
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     Text(

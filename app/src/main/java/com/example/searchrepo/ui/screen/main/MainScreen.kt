@@ -37,12 +37,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.example.searchrepo.R
 import com.example.searchrepo.ui.components.CustomDialog
 import com.example.searchrepo.ui.components.RepoItem
 import com.example.searchrepo.ui.components.SearchTextField
 import com.example.searchrepo.ui.screen.detail.DetailRepoModel
 import com.example.searchrepo.ui.theme.SearchRepoTheme
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun MainScreen(
@@ -52,12 +58,13 @@ fun MainScreen(
     onChangeTheme: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val pagingItems = viewModel.pagingData.collectAsLazyPagingItems()
     val context = LocalContext.current
     MainScreen(
+        pagingItems,
         state,
         isDarkMode,
         onSearchTextChanged = viewModel::onSearchTextChange,
-        onSearchClick = viewModel::requestRepoList,
         onNavigateToDetail = { id ->
             val detailRepoModel = viewModel.getDetailItem(id)
             if (detailRepoModel != null) {
@@ -87,10 +94,10 @@ fun MainScreen(
 
 @Composable
 private fun MainScreen(
+    pagingItems: LazyPagingItems<MainRepoModel>,
     state: RepoUiState,
     isDarkMode: Boolean,
     onSearchTextChanged: (String) -> Unit,
-    onSearchClick: () -> Unit,
     onNavigateToDetail: (Int) -> Unit,
     onRefreshSearched: () -> Unit,
     onChangeTheme: () -> Unit
@@ -160,7 +167,6 @@ private fun MainScreen(
             SearchTextField(
                 state,
                 onSearchTextChanged = onSearchTextChanged,
-                onSearchClick = onSearchClick
             )
             Spacer(
                 Modifier
@@ -174,18 +180,29 @@ private fun MainScreen(
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                RepoList(state.repos, onNavigateToDetail)
-                if (state.isLoading) {
+                RepoList(pagingItems, onNavigateToDetail)
+                val loadState = pagingItems.loadState
+                if (loadState.refresh is LoadState.Loading) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
-                if (state.error != null && !state.isLoading) {
-                    GuideText(text = "에러 발생: ${state.error}")
+
+                val errorState = loadState.source.refresh as? LoadState.Error
+                    ?: loadState.source.append as? LoadState.Error
+                    ?: loadState.refresh as? LoadState.Error
+                    ?: loadState.append as? LoadState.Error
+                if (errorState != null) {
+                    GuideText(text = "에러 발생: ${errorState.error.localizedMessage}")
                 } else {
+                    // 4. 가이드 텍스트 처리
                     if (!state.hasSearched) {
                         GuideText("검색어를 입력해주세요")
                     }
 
-                    if (state.hasSearched && !state.isLoading && state.repos.isEmpty()) {
+                    // 검색 결과가 없는 경우 (로딩 중이 아니고, 아이템 개수가 0일 때)
+                    if (state.hasSearched &&
+                        loadState.refresh is LoadState.NotLoading &&
+                        pagingItems.itemCount == 0
+                    ) {
                         GuideText("검색 결과가 없습니다")
                     }
                 }
@@ -207,7 +224,10 @@ fun BoxScope.GuideText(text: String) {
 }
 
 @Composable
-fun RepoList(repos: List<MainRepoModel>, onNavigateToDetail: (Int) -> Unit) {
+fun RepoList(
+    pagingItems: LazyPagingItems<MainRepoModel>,
+    onNavigateToDetail: (Int) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
@@ -216,13 +236,30 @@ fun RepoList(repos: List<MainRepoModel>, onNavigateToDetail: (Int) -> Unit) {
             top = 5.dp
         )
     ) {
-        items(items = repos, key = { repo ->
-            repo.id
-        }) { repo ->
-            RepoItem(repo, Modifier.clickable {
-                Log.e("JH", "repo id >> ${repo.id}")
-                onNavigateToDetail(repo.id)
-            })
+        items(
+            count = pagingItems.itemCount,
+            key = pagingItems.itemKey { repo -> repo.id })
+        { index ->
+            val repo = pagingItems[index]
+            if (repo != null) {
+                RepoItem(repo, Modifier.clickable { onNavigateToDetail(repo.id) })
+            }
+        }
+
+        if (pagingItems.loadState.append is LoadState.Loading) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth() // 1. 가로 전체를 채우고
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center // 2. 내용을 중앙에 배치
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(30.dp), // 크기 조절 (선택)
+                        strokeWidth = 3.dp
+                    )
+                }
+            }
         }
     }
 }
@@ -230,41 +267,24 @@ fun RepoList(repos: List<MainRepoModel>, onNavigateToDetail: (Int) -> Unit) {
 @Preview(showBackground = true)
 @Composable
 private fun MainScreenPreview() {
+    // Preview를 위한 가짜 페이징 데이터 생성
+    val fakeData = flowOf(
+        PagingData.from(
+            listOf(
+                MainRepoModel(1, "Sample", "Javas", "Java", 5000, 1000, "Jun", "", "")
+            )
+        )
+    ).collectAsLazyPagingItems()
+
     SearchRepoTheme {
         MainScreen(
-            state = RepoUiState(
-                hasSearched = true,
-                repos = listOf(
-                    MainRepoModel(
-                        1,
-                        "Sample Project",
-                        "Javas",
-                        "Java",
-                        5000,
-                        1000,
-                        "Junghyeon",
-                        "",
-                        "",
-                    ),
-                    MainRepoModel(
-                        2,
-                        "Compose Study",
-                        "Search Repo",
-                        "Kotlin",
-                        100,
-                        500,
-                        "Android",
-                        "",
-                        "",
-                    )
-                )
-            ),
-            onSearchTextChanged = {},
-            onSearchClick = {},
-            onNavigateToDetail = {}, // 이제 (Int) -> Unit 타입에 맞게 동작,
+            pagingItems = fakeData, // 추가된 파라미터
+            state = RepoUiState(hasSearched = true),
             isDarkMode = false,
+            onSearchTextChanged = {},
+            onNavigateToDetail = {},
             onRefreshSearched = {},
-            onChangeTheme = {}
+            onChangeTheme = {},
         )
     }
 }

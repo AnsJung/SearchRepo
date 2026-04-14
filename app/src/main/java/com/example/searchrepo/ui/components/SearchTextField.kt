@@ -36,7 +36,6 @@ import com.example.searchrepo.ui.screen.main.RepoUiState
 fun SearchTextField(
     state: RepoUiState,
     onSearchTextChanged: (String) -> Unit,
-    onSearchClick: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     Row(
@@ -82,7 +81,6 @@ fun SearchTextField(
                 onSearch = {
                     Log.e("JH", "검색 버튼 클릭")
                     focusManager.clearFocus()
-                    onSearchClick()
                 }
             ),
             colors = TextFieldDefaults.colors(

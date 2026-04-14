@@ -4,6 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.example.searchrepo.data.repository.GithubRepository
 import com.example.searchrepo.ui.common.ApiResult
 import com.example.searchrepo.ui.model.RepoUiModel
@@ -34,10 +37,11 @@ class MainViewModel @Inject constructor(
     private val githubRepository: GithubRepository
 ) : ViewModel() {
 
-    private var originResponse: List<RepoUiModel> = emptyList()
+    private val repoCache = mutableMapOf<Int, RepoUiModel>()
     private val _uiState = MutableStateFlow(RepoUiState())
     val uiState: StateFlow<RepoUiState> = _uiState.asStateFlow()
-    private var lastSearchQuery: String = ""
+    private val _pagingData = MutableStateFlow<PagingData<MainRepoModel>>(PagingData.empty())
+    val pagingData: StateFlow<PagingData<MainRepoModel>> = _pagingData.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -45,21 +49,30 @@ class MainViewModel @Inject constructor(
                 .map { it.searchText }
                 .distinctUntilChanged()
                 .onEach { query ->
-                    // [추가] 검색어가 비어있을 경우 리스트를 즉시 비움
                     if (query.isBlank()) {
-                        _uiState.update {
-                            it.copy(repos = emptyList(), hasSearched = false)
-                        }
+                        _pagingData.value = PagingData.empty()
+                        _uiState.update { it.copy(hasSearched = false) }
                     }
                 }
                 .debounce(500)
                 .filter { it.isNotBlank() }
                 .flatMapLatest { query ->
-                    flow {
-                        emit(requestRepoList(query))
-                    }
+                    // 단순히 함수를 실행하는 게 아니라,
+                    // Repository에서 만든 페이징 Flow를 이 흐름에 합칩니다.
+                    githubRepository.getSearchRepoPaging(query)
+                        .map { pagingData ->
+                            pagingData.map { repoUiModel->
+                                repoCache[repoUiModel.id] = repoUiModel
+                                repoUiModel.toMainModel()
+                            }
+                        }
+                        .cachedIn(viewModelScope)
                 }
-                .collect()
+                .collect { pagingData ->
+                    // 최종적으로 생성된 PagingData를 _pagingData에 업데이트
+                    _pagingData.value = pagingData
+                    _uiState.update { it.copy(hasSearched = true) }
+                }
         }
     }
 
@@ -67,68 +80,24 @@ class MainViewModel @Inject constructor(
         _uiState.update { it.copy(searchText = newSearchText) }
     }
 
-    fun requestRepoList(
-        query: String = _uiState.value.searchText
-    ) {
-        if (query.isBlank() || (query == lastSearchQuery && _uiState.value.repos.isNotEmpty())) {
-            Log.e("JH","중복 방지")
-            return
-        }
-        if (_uiState.value.isLoading) return
-
-        viewModelScope.launch {
-            lastSearchQuery = query
-            _uiState.update { it.copy(isLoading = true, error = null, hasSearched = true) }
-            when (val result = githubRepository.requestRepoList(query)) {
-                is ApiResult.Success -> {
-                    originResponse = result.data
-                    val mainData = originResponse.map { it.toMainModel() }
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            repos = mainData
-                        )
-                    }
-                }
-
-                is ApiResult.Error -> {
-                    Log.e("JH", "에러")
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            error = result.message
-                        )
-                    }
-                }
-
-                else -> {}
-            }
-        }
-    }
-
     fun getDetailItem(id: Int): DetailRepoModel? {
-        Log.e("JH", "id >> $id")
-        return originResponse.find { it.id == id }
-            ?.toDetailModel()
+        // 캐시(Map)에서 ID로 원본 RepoUiModel을 찾아서 변환
+        return repoCache[id]?.toDetailModel()
     }
 
     fun refreshSearched() {
-        if (_uiState.value.isLoading) return
-        if (_uiState.value.searchText.isBlank() && _uiState.value.repos.isEmpty()) {
-            _uiState.update {
-                it.copy(
-                    showGuideDialog = true
-                )
-            }
+        val currentState = _uiState.value
+        if (currentState.searchText.isBlank() && !currentState.hasSearched) {
+            _uiState.update { it.copy(showGuideDialog = true) }
             return
         }
         _uiState.update {
             it.copy(
                 searchText = "",
-                repos = emptyList(),
                 hasSearched = false
             )
         }
+        _pagingData.value = PagingData.empty()
     }
 
     fun onDialogDismiss() {
@@ -142,9 +111,8 @@ class MainViewModel @Inject constructor(
 
 data class RepoUiState(
     val searchText: String = "",
-    val isLoading: Boolean = false,
+//    val isLoading: Boolean = false,
     val hasSearched: Boolean = false,
-    val repos: List<MainRepoModel> = emptyList(),
-    val error: String? = null,
+//    val error: String? = null,
     val showGuideDialog: Boolean = false
 )
