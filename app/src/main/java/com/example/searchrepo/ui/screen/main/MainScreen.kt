@@ -42,7 +42,6 @@ import com.example.searchrepo.ui.components.CustomDialog
 import com.example.searchrepo.ui.components.RepoItem
 import com.example.searchrepo.ui.components.SearchTextField
 import com.example.searchrepo.ui.screen.detail.DetailRepoModel
-import com.example.searchrepo.ui.theme.GitHubDialogText
 import com.example.searchrepo.ui.theme.SearchRepoTheme
 
 @Composable
@@ -57,7 +56,7 @@ fun MainScreen(
     MainScreen(
         state,
         isDarkMode,
-        onSearchTextChanged = viewModel::onSearchTextChanged,
+        onSearchTextChanged = viewModel::onSearchTextChange,
         onSearchClick = viewModel::requestRepoList,
         onNavigateToDetail = { id ->
             val detailRepoModel = viewModel.getDetailItem(id)

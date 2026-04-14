@@ -17,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +27,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.searchrepo.ui.screen.main.MainViewModel
 import com.example.searchrepo.ui.screen.main.RepoUiState
 
 @Composable
@@ -34,13 +39,10 @@ fun SearchTextField(
     onSearchClick: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            // 1. 배경색을 테마에 맞게 (라이트: 흰색, 다크: 짙은 네이비)
             .padding(top = 15.dp, start = 10.dp, end = 10.dp)
-            // 2. 테두리 색상도 테마의 outlineVariant를 따름
             .background(
                 color = MaterialTheme.colorScheme.tertiary, // Color(0xFF364152)
                 shape = RoundedCornerShape(10.dp)
@@ -56,7 +58,6 @@ fun SearchTextField(
         Icon(
             imageVector = Icons.Default.Search,
             contentDescription = "Search",
-            // 3. 아이콘 색상도 테마에 반응하도록 설정
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         TextField(
@@ -69,7 +70,6 @@ fun SearchTextField(
             },
             onValueChange = onSearchTextChanged,
             textStyle = TextStyle(
-                // 4. 입력되는 글자 색상
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 15.sp
             ),
@@ -91,9 +91,7 @@ fun SearchTextField(
                 disabledContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                // 5. 커서 색상은 포인트 컬러인 Blue로 유지
                 cursorColor = MaterialTheme.colorScheme.primary,
-                // 입력 텍스트 색상도 명시적으로 지정 가능
                 focusedTextColor = MaterialTheme.colorScheme.onSurface,
                 unfocusedTextColor = MaterialTheme.colorScheme.onSurface
             )
