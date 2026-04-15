@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.navigation.NavType
 import kotlinx.serialization.json.Json
 
-inline fun <reified T : Any> createNaveType(
+inline fun <reified T : Any> createNavType(
     isNullableAllowed: Boolean = false
 ): NavType<T> = object : NavType<T>(isNullableAllowed) {
     override fun get(bundle: Bundle, key: String): T? {

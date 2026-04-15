@@ -1,15 +1,11 @@
 package com.example.searchrepo.data.repository
 
-import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.example.searchrepo.data.paging.GithubPagingSource
 import com.example.searchrepo.data.api.GithubAPI
-import com.example.searchrepo.data.model.toUiModel
-import com.example.searchrepo.ui.common.ApiResult
+import com.example.searchrepo.data.paging.GithubPagingSource
 import com.example.searchrepo.ui.model.RepoUiModel
-import com.example.searchrepo.ui.screen.main.MainRepoModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
