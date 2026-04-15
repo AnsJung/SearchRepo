@@ -1,6 +1,5 @@
 package com.example.searchrepo.ui.screen.main
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,13 +17,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +36,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -46,9 +49,44 @@ import com.example.searchrepo.R
 import com.example.searchrepo.ui.components.CustomDialog
 import com.example.searchrepo.ui.components.RepoItem
 import com.example.searchrepo.ui.components.SearchTextField
+import com.example.searchrepo.ui.navigation.Route
+import com.example.searchrepo.ui.navigation.util.createNavType
 import com.example.searchrepo.ui.screen.detail.DetailRepoModel
+import com.example.searchrepo.ui.screen.detail.DetailScreen
 import com.example.searchrepo.ui.theme.SearchRepoTheme
 import kotlinx.coroutines.flow.flowOf
+import kotlin.reflect.typeOf
+
+@Composable
+fun SearchRepoApp(viewModel: MainViewModel = hiltViewModel()) {
+    val isDarkMode by viewModel.isDarkMode.collectAsState()
+    val navController = rememberNavController()
+
+    SearchRepoTheme(darkTheme = isDarkMode) {
+        NavHost(navController = navController, startDestination = Route.Main) {
+            composable<Route.Main> {
+                MainScreen(
+                    isDarkMode = isDarkMode,
+                    onNavigateToDetail = { detailRepoModel ->
+                        navController.navigate(Route.Detail(detailRepoModel))
+                    },
+                    onChangeTheme = {
+                        viewModel.setDarkMode(!isDarkMode)
+                    })
+            }
+            composable<Route.Detail>(
+                typeMap = mapOf(
+                    typeOf<DetailRepoModel>() to createNavType<DetailRepoModel>()
+                )
+            ) { backstackEntry ->
+                val detailRoute = backstackEntry.toRoute<Route.Detail>()
+                DetailScreen(detailRoute.detailRepoModel) {
+                    navController.popBackStack()
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun MainScreen(
@@ -60,7 +98,7 @@ fun MainScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val pagingItems = viewModel.pagingData.collectAsLazyPagingItems()
     val context = LocalContext.current
-    MainScreen(
+    MainContent(
         pagingItems,
         state,
         isDarkMode,
@@ -93,9 +131,9 @@ fun MainScreen(
 }
 
 @Composable
-private fun MainScreen(
+private fun MainContent(
     pagingItems: LazyPagingItems<MainRepoModel>,
-    state: RepoUiState,
+    state: MainUiState,
     isDarkMode: Boolean,
     onSearchTextChanged: (String) -> Unit,
     onNavigateToDetail: (Int) -> Unit,
@@ -277,9 +315,9 @@ private fun MainScreenPreview() {
     ).collectAsLazyPagingItems()
 
     SearchRepoTheme {
-        MainScreen(
+        MainContent(
             pagingItems = fakeData, // 추가된 파라미터
-            state = RepoUiState(hasSearched = true),
+            state = MainUiState(hasSearched = true),
             isDarkMode = false,
             onSearchTextChanged = {},
             onNavigateToDetail = {},

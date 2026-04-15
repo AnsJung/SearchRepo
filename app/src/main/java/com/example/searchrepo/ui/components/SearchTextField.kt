@@ -17,8 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,14 +25,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.searchrepo.ui.screen.main.MainViewModel
-import com.example.searchrepo.ui.screen.main.RepoUiState
+import com.example.searchrepo.ui.screen.main.MainUiState
 
 @Composable
 fun SearchTextField(
-    state: RepoUiState,
+    state: MainUiState,
     onSearchTextChanged: (String) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
