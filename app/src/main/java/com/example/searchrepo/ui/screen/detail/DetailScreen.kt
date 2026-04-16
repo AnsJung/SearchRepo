@@ -1,22 +1,43 @@
 package com.example.searchrepo.ui.screen.detail
 
 import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.runtime.*
-import androidx.compose.material3.*
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,20 +49,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import com.example.searchrepo.R
 import androidx.core.net.toUri
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil3.compose.AsyncImage
+import com.example.searchrepo.R
 import com.example.searchrepo.ui.util.GithubUtil
 import com.example.searchrepo.ui.util.toKoreanDate
-import com.example.searchrepo.ui.util.toRelativeTime
 import com.example.searchrepo.ui.util.toShortenedString
 
 @Composable
 fun DetailScreen(
-    detailRepoModel: DetailRepoModel = DetailRepoModel(),
-    onBackClick: () -> Unit = {}
+    detailViewModel: DetailViewModel = hiltViewModel(),
+    onBackClick: () -> Unit = {},
 ) {
+    val isFavorite by detailViewModel.isFavorite.collectAsState()
     Surface(
         color = MaterialTheme.colorScheme.onPrimary,
         modifier = Modifier.fillMaxSize()
@@ -49,7 +71,6 @@ fun DetailScreen(
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .navigationBarsPadding()
                 .statusBarsPadding(),
             topBar = {
                 Row(
@@ -71,11 +92,28 @@ fun DetailScreen(
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     Text(
-                        detailRepoModel.projectName,
+                        detailViewModel.detailRepoModel.projectName,
                         fontWeight = FontWeight.Medium,
                         fontSize = 20.sp,
                         color = MaterialTheme.colorScheme.onBackground
                     )
+                    Spacer(Modifier.weight(1f))
+                    Icon(
+                        painter =
+                            if (isFavorite) {
+                                painterResource(R.drawable.ic_git_heart_filled)
+                            } else {
+                                painterResource(R.drawable.ic_git_heart_border)
+                            },
+                        contentDescription = "",
+                        Modifier
+                            .size(20.dp)
+                            .clickable {
+                                detailViewModel.toggleFavoriteItem()
+                            },
+                        tint = Color.Unspecified
+                    )
+                    Spacer(Modifier.width(20.dp))
                 }
             })
         { paddingValues ->
@@ -83,34 +121,37 @@ fun DetailScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(paddingValues)
+                    .padding(top=paddingValues.calculateTopPadding())
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 15.dp)
-                    .padding(top = 10.dp),
+                    .padding(top = 10.dp, bottom = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                OwnerArea(detailRepoModel.avatarUrl, detailRepoModel.userName)
-                if (!detailRepoModel.description.isNullOrBlank()) {
-                    DescriptionArea(detailRepoModel.description)
+                OwnerArea(
+                    detailViewModel.detailRepoModel.avatarUrl,
+                    detailViewModel.detailRepoModel.userName
+                )
+                if (!detailViewModel.detailRepoModel.description.isNullOrBlank()) {
+                    DescriptionArea(detailViewModel.detailRepoModel.description)
                 }
-                if (detailRepoModel.topics.isNotEmpty()) {
-                    TopicsArea(detailRepoModel.topics)
+                if (detailViewModel.detailRepoModel.topics.isNotEmpty()) {
+                    TopicsArea(detailViewModel.detailRepoModel.topics)
                 }
                 CountArea(
-                    detailRepoModel.stargazersCount,
-                    detailRepoModel.forksCount,
-                    detailRepoModel.watchersCount,
-                    detailRepoModel.openIssuesCount
+                    detailViewModel.detailRepoModel.stargazersCount,
+                    detailViewModel.detailRepoModel.forksCount,
+                    detailViewModel.detailRepoModel.watchersCount,
+                    detailViewModel.detailRepoModel.openIssuesCount
                 )
                 InfoArea(
-                    detailRepoModel.language,
-                    detailRepoModel.defaultBranch,
-                    detailRepoModel.license,
-                    detailRepoModel.createdAt,
-                    detailRepoModel.updatedAt
+                    detailViewModel.detailRepoModel.language,
+                    detailViewModel.detailRepoModel.defaultBranch,
+                    detailViewModel.detailRepoModel.license,
+                    detailViewModel.detailRepoModel.createdAt,
+                    detailViewModel.detailRepoModel.updatedAt
                 )
                 MoveArea(
-                    detailRepoModel.htmlUrl
+                    detailViewModel.detailRepoModel.htmlUrl
                 )
             }
         }
@@ -296,11 +337,11 @@ fun CountArea(
 
 @Composable
 fun StatItem(
+    modifier: Modifier = Modifier,
     @DrawableRes iconResId: Int,
     iconColor: Color? = null,
     label: String,
     value: Int,
-    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier.padding(12.dp),
@@ -315,7 +356,7 @@ fun StatItem(
         Spacer(modifier = Modifier.width(12.dp))
         Column {
             Text(text = label, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
-            Text(text = value.toShortenedString(), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(text = value.toShortenedString(), color=MaterialTheme.colorScheme.onBackground,fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }
@@ -488,7 +529,6 @@ private fun DetailScreenPreview() {
 
     MaterialTheme {
         DetailScreen(
-            detailRepoModel = previewData,
             onBackClick = { /* 테스트 시 로그 출력 등 */ }
         )
     }

@@ -6,7 +6,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.example.searchrepo.data.repository.GithubRepository
-import com.example.searchrepo.ui.common.PreferenceManager
+import com.example.searchrepo.data.local.PreferenceManager
 import com.example.searchrepo.ui.model.RepoUiModel
 import com.example.searchrepo.ui.model.toDetailModel
 import com.example.searchrepo.ui.model.toMainModel
@@ -14,6 +14,7 @@ import com.example.searchrepo.ui.screen.detail.DetailRepoModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -41,8 +42,7 @@ class MainViewModel @Inject constructor(
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
     private val _pagingData = MutableStateFlow<PagingData<MainRepoModel>>(PagingData.empty())
     val pagingData: StateFlow<PagingData<MainRepoModel>> = _pagingData.asStateFlow()
-
-    val isDarkMode : StateFlow<Boolean> = preferenceManager.isDarkMode
+    val isDarkMode: StateFlow<Boolean> = preferenceManager.isDarkMode
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -67,7 +67,7 @@ class MainViewModel @Inject constructor(
                     // Repository에서 만든 페이징 Flow를 이 흐름에 합칩니다.
                     githubRepository.getSearchRepoPaging(query)
                         .map { pagingData ->
-                            pagingData.map { repoUiModel->
+                            pagingData.map { repoUiModel ->
                                 repoCache[repoUiModel.id] = repoUiModel
                                 repoUiModel.toMainModel()
                             }
@@ -84,11 +84,19 @@ class MainViewModel @Inject constructor(
 
     fun onSearchTextChange(newSearchText: String) {
         _uiState.update { it.copy(searchText = newSearchText) }
+        repoCache.clear()
     }
 
-    fun getDetailItem(id: Int): DetailRepoModel? {
-        // 캐시(Map)에서 ID로 원본 RepoUiModel을 찾아서 변환
-        return repoCache[id]?.toDetailModel()
+    suspend fun getDetailItem(id: Int): DetailRepoModel? {
+        val repoItem = repoCache[id] ?: return null
+        val isFavorite = try {
+            preferenceManager.isFavorite(id)
+        } catch (e: Exception) {
+            false
+        }
+
+        return repoItem.toDetailModel()
+            .copy(isFavorite = isFavorite)
     }
 
     fun refreshSearched() {
@@ -119,6 +127,7 @@ class MainViewModel @Inject constructor(
             preferenceManager.setDarkMode(enabled)
         }
     }
+
 }
 
 data class MainUiState(

@@ -4,10 +4,13 @@ import com.example.searchrepo.ui.screen.detail.DetailRepoModel
 import kotlinx.serialization.Serializable
 
 
-sealed interface Route{
+sealed interface Route {
     @Serializable
-    object Main
+    object Main : Route
 
     @Serializable
-    data class Detail(val detailRepoModel: DetailRepoModel)
+    data class Detail(val detailRepoModel: DetailRepoModel) : Route
+
+    @Serializable
+    object Favorite : Route
 }

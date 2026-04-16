@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,42 +56,13 @@ import com.example.searchrepo.ui.screen.detail.DetailRepoModel
 import com.example.searchrepo.ui.screen.detail.DetailScreen
 import com.example.searchrepo.ui.theme.SearchRepoTheme
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
 
-@Composable
-fun SearchRepoApp(viewModel: MainViewModel = hiltViewModel()) {
-    val isDarkMode by viewModel.isDarkMode.collectAsState()
-    val navController = rememberNavController()
-
-    SearchRepoTheme(darkTheme = isDarkMode) {
-        NavHost(navController = navController, startDestination = Route.Main) {
-            composable<Route.Main> {
-                MainScreen(
-                    isDarkMode = isDarkMode,
-                    onNavigateToDetail = { detailRepoModel ->
-                        navController.navigate(Route.Detail(detailRepoModel))
-                    },
-                    onChangeTheme = {
-                        viewModel.setDarkMode(!isDarkMode)
-                    })
-            }
-            composable<Route.Detail>(
-                typeMap = mapOf(
-                    typeOf<DetailRepoModel>() to createNavType<DetailRepoModel>()
-                )
-            ) { backstackEntry ->
-                val detailRoute = backstackEntry.toRoute<Route.Detail>()
-                DetailScreen(detailRoute.detailRepoModel) {
-                    navController.popBackStack()
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun MainScreen(
-    viewModel: MainViewModel = hiltViewModel(),
+    viewModel: MainViewModel,
     onNavigateToDetail: (DetailRepoModel) -> Unit,
     isDarkMode: Boolean,
     onChangeTheme: () -> Unit
@@ -98,18 +70,22 @@ fun MainScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val pagingItems = viewModel.pagingData.collectAsLazyPagingItems()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     MainContent(
         pagingItems,
         state,
         isDarkMode,
         onSearchTextChanged = viewModel::onSearchTextChange,
         onNavigateToDetail = { id ->
-            val detailRepoModel = viewModel.getDetailItem(id)
-            if (detailRepoModel != null) {
-                onNavigateToDetail(detailRepoModel)
-            } else {
-                Toast.makeText(context, "다음 화면으로 이동할 수 없습니다.", Toast.LENGTH_SHORT)
-                    .show()
+            scope.launch {
+                val detailRepoModel = viewModel.getDetailItem(id)
+
+                if (detailRepoModel != null) {
+                    onNavigateToDetail(detailRepoModel)
+                } else {
+                    // 💡 캐시에 데이터가 없는 등 실패 시 사용자 알림
+                    Toast.makeText(context, "상세 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show()
+                }
             }
         },
         onRefreshSearched = viewModel::refreshSearched,
@@ -152,8 +128,7 @@ private fun MainContent(
                 .statusBarsPadding()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(top = 10.dp)
-        )
-        {
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),

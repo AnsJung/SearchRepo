@@ -1,8 +1,11 @@
 package com.example.searchrepo.ui.model
 
 import com.example.searchrepo.ui.screen.detail.DetailRepoModel
+import com.example.searchrepo.ui.screen.favorite.FavoriteRepoModel
 import com.example.searchrepo.ui.screen.main.MainRepoModel
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class RepoUiModel(
     val id: Int,
     val projectName: String,
@@ -38,6 +41,7 @@ fun RepoUiModel.toMainModel(): MainRepoModel {
 
 fun RepoUiModel.toDetailModel(): DetailRepoModel {
     return DetailRepoModel(
+        id = id,
         projectName = this.projectName,
         description = this.description,
         language = this.language,
@@ -53,5 +57,19 @@ fun RepoUiModel.toDetailModel(): DetailRepoModel {
         defaultBranch = this.defaultBranch,
         htmlUrl = this.htmlUrl,
         createdAt = this.createdAt,
+    )
+}
+
+fun RepoUiModel.toFavoriteModel(): FavoriteRepoModel {
+    return FavoriteRepoModel(
+        id = this.id,
+        projectName = this.projectName,
+        description = this.description,
+        language = this.language,
+        stargazersCount = this.stargazersCount,
+        forksCount = this.forksCount,
+        userName = this.userName,
+        avatarUrl = this.avatarUrl,
+        updatedAt = this.updatedAt
     )
 }
