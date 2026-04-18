@@ -169,8 +169,8 @@ private fun MainContent(
             }
 
             SearchTextField(
-                state,
-                onSearchTextChanged = onSearchTextChanged,
+                state.searchText,
+                onValueChange = onSearchTextChanged,
             )
             Spacer(
                 Modifier

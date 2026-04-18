@@ -27,12 +27,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.searchrepo.R
-import com.example.searchrepo.ui.screen.main.MainUiState
 
 @Composable
 fun SearchTextField(
-    state: MainUiState,
-    onSearchTextChanged: (String) -> Unit,
+    value: String,
+    onValueChange: (String) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
     Row(
@@ -57,7 +56,7 @@ fun SearchTextField(
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         TextField(
-            value = state.searchText,
+            value = value,
             placeholder = {
                 Text(
                     text = stringResource(R.string.search_repo_hint),
@@ -65,7 +64,7 @@ fun SearchTextField(
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             },
-            onValueChange = onSearchTextChanged,
+            onValueChange = onValueChange,
             textStyle = TextStyle(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 15.sp
