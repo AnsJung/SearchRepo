@@ -11,12 +11,12 @@ sealed class BottomNavItem(
     object Search : BottomNavItem(
         route = Route.Main,
         name = "Search",
-        selectedIcon = R.drawable.ic_git_search_select, // 미리 준비된 아이콘
+        selectedIcon = R.drawable.ic_git_search_select,
         unselectedIcon = R.drawable.ic_git_search
     )
     object Favorite : BottomNavItem(
-        route = Route.Favorite, // 나중에 추가할 즐겨찾기 화면
-        name = "즐겨찾기",
+        route = Route.Favorite,
+        name = "Favorite",
         selectedIcon = R.drawable.ic_git_favorite_select,
         unselectedIcon = R.drawable.ic_git_favorite
     )
