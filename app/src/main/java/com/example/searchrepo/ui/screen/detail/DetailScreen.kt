@@ -44,10 +44,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
@@ -79,7 +78,8 @@ fun DetailScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        Icons.AutoMirrored.Default.ArrowBack, contentDescription = null,
+                        Icons.AutoMirrored.Default.ArrowBack,
+                        contentDescription = stringResource(R.string.cd_back),
                         modifier = Modifier
                             .clickable {
                                 onBackClick()
@@ -90,11 +90,11 @@ fun DetailScreen(
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     Text(
-                        detailViewModel.detailRepoModel.projectName,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 20.sp,
+                        text = detailViewModel.detailRepoModel.projectName,
+                        style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onBackground
                     )
+
                     Spacer(Modifier.weight(1f))
                     Icon(
                         painter =
@@ -103,7 +103,7 @@ fun DetailScreen(
                             } else {
                                 painterResource(R.drawable.ic_git_heart_border)
                             },
-                        contentDescription = "",
+                        contentDescription = stringResource(R.string.cd_toggle_favorite),
                         Modifier
                             .size(20.dp)
                             .clickable {
@@ -186,7 +186,7 @@ fun OwnerArea(avatarUrl: String, userName: String) {
                 AsyncImage(
                     model = avatarUrl,
                     error = painterResource(R.drawable.ic_launcher_foreground),
-                    contentDescription = "유저 아이콘",
+                    contentDescription = stringResource(R.string.cd_user_avatar),
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape),
@@ -201,15 +201,14 @@ fun OwnerArea(avatarUrl: String, userName: String) {
             Spacer(Modifier.width(10.dp))
             Column {
                 Text(
-                    "소유자",
-                    fontSize = 14.sp,
+                    text = stringResource(R.string.detail_owner),
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    userName,
-                    fontSize = 16.sp,
+                    text = userName,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Medium
                 )
             }
         }
@@ -220,9 +219,9 @@ fun OwnerArea(avatarUrl: String, userName: String) {
 fun DescriptionArea(description: String) {
     DetailSectionContainer {
         Text(
-            description,
-            color = MaterialTheme.colorScheme.onBackground,
-            fontSize = 16.sp
+            text = description,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }
@@ -232,9 +231,11 @@ fun TopicsArea(topics: List<String>) {
     DetailSectionContainer {
         Column {
             Text(
-                "토픽", color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 14.sp
+                text = stringResource(R.string.detail_topics),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
             Spacer(Modifier.height(10.dp))
             FlowRow(
                 modifier = Modifier
@@ -247,8 +248,7 @@ fun TopicsArea(topics: List<String>) {
                     Text(
                         text = text,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Normal,
+                        style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier
                             .background(
                                 color = MaterialTheme.colorScheme.secondaryContainer,
@@ -326,12 +326,15 @@ fun StatItem(
         )
         Spacer(modifier = Modifier.width(12.dp))
         Column {
-            Text(text = label, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
+            Text(
+                text = label,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall
+            )
             Text(
                 text = value.toShortenedString(),
                 color = MaterialTheme.colorScheme.onBackground,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
+                style = MaterialTheme.typography.bodyLarge
             )
         }
     }
@@ -349,32 +352,35 @@ fun InfoArea(
         Column {
             language?.let {
                 InfoRow(
-                    languageColor = GithubUtil.getLanguageColor(it), // C 언어의 파란색 점
-                    label = "언어",
+                    languageColor = GithubUtil.getLanguageColor(it),
+                    label = stringResource(R.string.detail_language),
                     value = it
                 )
             }
+
             InfoRow(
-                iconResId = R.drawable.ic_git_branch, // 아까 저장한 브랜치 아이콘
-                label = "기본 브랜치",
+                iconResId = R.drawable.ic_git_branch,
+                label = stringResource(R.string.detail_default_branch),
                 value = defaultBranch
             )
+
             license?.let {
                 InfoRow(
-                    // 라이선스 아이콘이 별도로 없다면 ic_issues 등을 활용하거나 빈 박스 처리
                     iconResId = R.drawable.ic_issues,
-                    label = "라이선스",
+                    label = stringResource(R.string.detail_license),
                     value = it
                 )
             }
-            InfoRow(
-                iconResId = R.drawable.ic_calendar, // 아까 저장한 달력 아이콘
-                label = "생성일",
-                value = createdAt.toKoreanDate()
-            )
+
             InfoRow(
                 iconResId = R.drawable.ic_calendar,
-                label = "최근 업데이트",
+                label = stringResource(R.string.detail_created_at),
+                value = createdAt.toKoreanDate()
+            )
+
+            InfoRow(
+                iconResId = R.drawable.ic_calendar,
+                label = stringResource(R.string.detail_updated_at),
                 value = updatedAt.toKoreanDate()
             )
         }
@@ -417,20 +423,17 @@ fun InfoRow(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // 타이틀 (회색톤)
         Text(
             text = "$label:",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(end = 8.dp)
         )
 
-        // 내용 (검정/배경 대비색)
         Text(
             text = value,
             color = MaterialTheme.colorScheme.onBackground,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }
@@ -449,12 +452,19 @@ fun MoveArea(htmlUrl: String) {
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Github에서 보기", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp)
+            Text(
+                text = stringResource(R.string.detail_view_on_github),
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
             Icon(
-                painter = painterResource(R.drawable.ic_external_link), tint = Color.Gray,
-                contentDescription = "페이지로 이동",
+                painter = painterResource(R.drawable.ic_external_link),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                contentDescription = stringResource(R.string.cd_move_to_page),
                 modifier = Modifier.size(20.dp)
             )
         }

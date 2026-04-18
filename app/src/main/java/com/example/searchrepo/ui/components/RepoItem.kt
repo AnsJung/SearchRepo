@@ -29,10 +29,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.example.searchrepo.R
@@ -45,7 +44,7 @@ import com.example.searchrepo.ui.util.toShortenedString
 fun RepoItem(
     item: RepoUiModel,
     modifier: Modifier = Modifier,
-    trailingContent : (@Composable (() -> Unit))? = null
+    trailingContent: (@Composable (() -> Unit))? = null
 ) {
     Column(
         modifier
@@ -70,7 +69,7 @@ fun RepoItem(
                     .data(item.avatarUrl)
                     .build(),
                 error = painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = "유저 아이콘",
+                contentDescription = stringResource(R.string.cd_user_avatar),
                 modifier = Modifier
                     .size(24.dp)
                     .clip(CircleShape),
@@ -80,8 +79,9 @@ fun RepoItem(
                 }
             )
             Text(
-                item.userName,
-                color = MaterialTheme.colorScheme.onBackground,
+                text = item.userName,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             trailingContent?.let {
@@ -90,9 +90,8 @@ fun RepoItem(
             }
         }
         Text(
-            item.projectName,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
+            text = item.projectName,
+            style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
 
@@ -100,8 +99,8 @@ fun RepoItem(
             ?.let { desc ->
                 Text(
                     text = desc,
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2
                 )
             }
@@ -119,8 +118,8 @@ fun RepoItem(
                     )
                     Text(
                         text = " $lang",
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = 12.sp
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -134,8 +133,8 @@ fun RepoItem(
             )
             Spacer(Modifier.weight(1f))
             Text(
-                item.updatedAt.toRelativeTime(),
-                fontSize = 14.sp,
+                text = item.updatedAt.toRelativeTime(),
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -157,19 +156,23 @@ private fun IconStat(
         if (icon != null) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = text,
                 modifier = Modifier.size(16.dp),
                 tint = statColor
             )
         } else if (painter != null) {
             Icon(
                 painter = painter,
-                contentDescription = null,
+                contentDescription = text,
                 modifier = Modifier.size(16.dp),
                 tint = statColor
             )
         }
-        Text(text = text, fontSize = 12.sp, color = statColor)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = statColor
+        )
     }
 }
 
@@ -211,7 +214,7 @@ private fun FavoriteItemPreview() {
                     avatarUrl = "",
                     updatedAt = "2026-02-26T08:25:15Z"
                 ),
-        ){
+        ) {
             Icon(
                 painter = painterResource(R.drawable.ic_git_heart_filled),
                 contentDescription = "",

@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -25,7 +26,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.example.searchrepo.ui.navigation.BottomNavItem
 import com.example.searchrepo.ui.navigation.Route
 import com.example.searchrepo.ui.navigation.util.createNavType
@@ -130,11 +130,11 @@ class MainActivity : ComponentActivity() {
                             restoreState = true
                         }
                     },
-                    label = { Text(text = item.name) },
+                    label = { Text(text = stringResource(item.name)) },
                     icon = {
                         Icon(
                             painter = painterResource(if (isSelected) item.selectedIcon else item.unselectedIcon),
-                            contentDescription = item.name
+                            contentDescription = stringResource(item.name)
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(

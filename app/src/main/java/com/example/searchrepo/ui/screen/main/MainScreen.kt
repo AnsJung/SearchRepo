@@ -29,10 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.PagingData
@@ -58,6 +57,7 @@ fun MainScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val pagingItems = viewModel.pagingData.collectAsLazyPagingItems()
     val context = LocalContext.current
+    val detailNotFoundMessage = stringResource(R.string.error_detail_not_found)
     MainContent(
         pagingItems,
         state,
@@ -69,8 +69,11 @@ fun MainScreen(
             if (detailRepoModel != null) {
                 onNavigateToDetail(detailRepoModel)
             } else {
-                Toast.makeText(context, "상세 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(
+                    context,
+                    detailNotFoundMessage,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         },
         onRefreshSearched = viewModel::refreshSearched,
@@ -85,8 +88,8 @@ fun MainScreen(
                 viewModel.onDialogDismiss()
             },
             confirmBtnColor = MaterialTheme.colorScheme.primary,
-            title = "알림",
-            message = "지울 내용이 없습니다.\n먼저 키워드를 입력해 보세요."
+            title = stringResource(R.string.dialog_title_notice),
+            message = stringResource(R.string.search_clear_guide_message)
         )
     }
 }
@@ -102,7 +105,11 @@ private fun MainContent(
     onChangeTheme: () -> Unit
 ) {
     val themeIcon = if (isDarkMode) R.drawable.ic_set_light else R.drawable.ic_set_dark
-    val themeContentDescription = if (isDarkMode) "라이트 모드" else "다크 모드"
+    val themeContentDescription = if (isDarkMode) {
+        stringResource(R.string.cd_switch_to_light_mode)
+    } else {
+        stringResource(R.string.cd_switch_to_dark_mode)
+    }
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.onPrimary
@@ -120,10 +127,9 @@ private fun MainContent(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "GitHub 레포지토리 검색",
+                    text = stringResource(R.string.main_title),
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(start = 10.dp)
                 )
                 Spacer(Modifier.weight(1f))
@@ -137,9 +143,9 @@ private fun MainContent(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_refresh),
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.cd_refresh),
                         modifier = Modifier.size(20.dp),
-                        tint = if (isDarkMode) Color.Gray else Color.Black
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Spacer(Modifier.width(10.dp))
@@ -189,11 +195,16 @@ private fun MainContent(
                     ?: loadState.refresh as? LoadState.Error
                     ?: loadState.append as? LoadState.Error
                 if (errorState != null) {
-                    GuideText(text = "에러 발생: ${errorState.error.localizedMessage}")
+                    GuideText(
+                        text = stringResource(
+                            R.string.error_occurred_with_message,
+                            errorState.error.localizedMessage ?: ""
+                        )
+                    )
                 } else {
                     // 4. 가이드 텍스트 처리
                     if (!state.hasSearched) {
-                        GuideText("검색어를 입력해주세요")
+                        GuideText(stringResource(R.string.empty_search))
                     }
 
                     // 검색 결과가 없는 경우 (로딩 중이 아니고, 아이템 개수가 0일 때)
@@ -201,7 +212,7 @@ private fun MainContent(
                         loadState.refresh is LoadState.NotLoading &&
                         pagingItems.itemCount == 0
                     ) {
-                        GuideText("검색 결과가 없습니다")
+                        GuideText(stringResource(R.string.no_result))
                     }
                 }
             }
@@ -212,9 +223,9 @@ private fun MainContent(
 @Composable
 fun BoxScope.GuideText(text: String) {
     Text(
-        text,
+        text = text,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        fontSize = 18.sp,
+        style = MaterialTheme.typography.bodyLarge,
         modifier = Modifier
             .align(Alignment.TopCenter)
             .padding(50.dp)

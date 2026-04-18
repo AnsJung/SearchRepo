@@ -21,10 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.searchrepo.R
 import com.example.searchrepo.ui.screen.main.MainUiState
 
 @Composable
@@ -51,14 +53,15 @@ fun SearchTextField(
     ) {
         Icon(
             imageVector = Icons.Default.Search,
-            contentDescription = "Search",
+            contentDescription = stringResource(R.string.cd_search),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         TextField(
             value = state.searchText,
             placeholder = {
                 Text(
-                    text = "레포지토리 검색...",
+                    text = stringResource(R.string.search_repo_hint),
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             },

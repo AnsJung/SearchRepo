@@ -29,11 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.searchrepo.R
 import com.example.searchrepo.ui.components.RepoItem
@@ -48,10 +47,14 @@ fun FavoriteScreen(
     onNavigateToDetail: (DetailRepoModel) -> Unit
 ) {
     val themeIcon = if (isDarkMode) R.drawable.ic_set_light else R.drawable.ic_set_dark
-    val themeContentDescription = if (isDarkMode) "라이트 모드" else "다크 모드"
+    val themeContentDescription = if (isDarkMode) {
+        stringResource(R.string.cd_switch_to_light_mode)
+    } else {
+        stringResource(R.string.cd_switch_to_dark_mode)
+    }
     val favoriteRepos by viewModel.favoriteRepos.collectAsState()
     val context = LocalContext.current
-
+    val detailNotFoundMessage = stringResource(R.string.error_detail_not_found)
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.onPrimary
@@ -67,13 +70,11 @@ fun FavoriteScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-            )
-            {
+            ) {
                 Text(
-                    "즐겨찾기",
+                    text = stringResource(R.string.favorite_title),
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(start = 10.dp)
                 )
                 Spacer(Modifier.weight(1f))
@@ -100,7 +101,7 @@ fun FavoriteScreen(
                     .padding(top = 15.dp)
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(Color(0xffa1a1a1))
+                    .background(MaterialTheme.colorScheme.outlineVariant)
             )
             Box(
                 modifier = Modifier
@@ -118,8 +119,11 @@ fun FavoriteScreen(
                             if (detailRepoModel != null) {
                                 onNavigateToDetail(detailRepoModel)
                             } else {
-                                // 💡 캐시에 데이터가 없는 등 실패 시 사용자 알림
-                                Toast.makeText(context, "상세 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT)
+                                Toast.makeText(
+                                    context,
+                                    detailNotFoundMessage,
+                                    Toast.LENGTH_SHORT
+                                )
                                     .show()
                             }
                         },
@@ -128,8 +132,8 @@ fun FavoriteScreen(
                         })
                 } else {
                     Text(
-                        "좋아요한 레포지토리가 없습니다\n레포지토리를 검색하고 좋아요를 눌러보세요",
-                        fontSize = 16.sp,
+                        text = stringResource(R.string.favorite_empty_message),
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
@@ -161,11 +165,11 @@ fun FavoriteList(
             RepoItem(
                 item = favoriteRepo,
                 modifier = Modifier.clickable { onNavigateToDetail(favoriteRepo.id) },
-            ){
+            ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_git_heart_filled),
-                    contentDescription = "",
-                    Modifier
+                    contentDescription = stringResource(R.string.cd_remove_favorite),
+                    modifier = Modifier
                         .size(20.dp)
                         .clickable {
                             removeFavorite(favoriteRepo.id)
