@@ -54,12 +54,4 @@ class PreferenceManager @Inject constructor(
         }
     }
 
-    suspend fun isFavorite(repoId: Int): Boolean {
-        val preferences = context.dataStore.data.first() // 현재 상태를 한 번 읽어옴
-        val json = preferences[FAVORITE_LIST_KEY] ?: "[]"
-        val favoriteList = Json.decodeFromString<List<RepoUiModel>>(json)
-
-        return favoriteList.any { it.id == repoId }
-    }
-
 }

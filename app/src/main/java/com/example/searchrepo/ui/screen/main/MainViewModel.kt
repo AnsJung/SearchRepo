@@ -87,16 +87,9 @@ class MainViewModel @Inject constructor(
         repoCache.clear()
     }
 
-    suspend fun getDetailItem(id: Int): DetailRepoModel? {
+    fun getDetailItem(id: Int): DetailRepoModel? {
         val repoItem = repoCache[id] ?: return null
-        val isFavorite = try {
-            preferenceManager.isFavorite(id)
-        } catch (e: Exception) {
-            false
-        }
-
         return repoItem.toDetailModel()
-            .copy(isFavorite = isFavorite)
     }
 
     fun refreshSearched() {

@@ -59,7 +59,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
 
-
 @Composable
 fun MainScreen(
     viewModel: MainViewModel,
@@ -70,22 +69,19 @@ fun MainScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val pagingItems = viewModel.pagingData.collectAsLazyPagingItems()
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     MainContent(
         pagingItems,
         state,
         isDarkMode,
         onSearchTextChanged = viewModel::onSearchTextChange,
         onNavigateToDetail = { id ->
-            scope.launch {
-                val detailRepoModel = viewModel.getDetailItem(id)
+            val detailRepoModel = viewModel.getDetailItem(id)
 
-                if (detailRepoModel != null) {
-                    onNavigateToDetail(detailRepoModel)
-                } else {
-                    // 💡 캐시에 데이터가 없는 등 실패 시 사용자 알림
-                    Toast.makeText(context, "상세 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show()
-                }
+            if (detailRepoModel != null) {
+                onNavigateToDetail(detailRepoModel)
+            } else {
+                Toast.makeText(context, "상세 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT)
+                    .show()
             }
         },
         onRefreshSearched = viewModel::refreshSearched,

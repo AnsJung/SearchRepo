@@ -21,7 +21,6 @@ data class DetailRepoModel(
     val defaultBranch: String = "",
     val htmlUrl: String = "",
     val createdAt: String = "",
-    val isFavorite: Boolean = false
 ){
 }
 

@@ -37,7 +37,6 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.example.searchrepo.R
 import com.example.searchrepo.ui.screen.favorite.FavoriteRepoModel
-import com.example.searchrepo.ui.screen.main.MainRepoModel
 import com.example.searchrepo.ui.util.GithubUtil
 import com.example.searchrepo.ui.util.toRelativeTime
 import com.example.searchrepo.ui.util.toShortenedString

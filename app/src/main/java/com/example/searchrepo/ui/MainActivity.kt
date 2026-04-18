@@ -94,8 +94,7 @@ class MainActivity : ComponentActivity() {
                         typeMap = mapOf(
                             typeOf<DetailRepoModel>() to createNavType<DetailRepoModel>()
                         )
-                    ) { backstackEntry ->
-                        val detailRoute = backstackEntry.toRoute<Route.Detail>()
+                    ) {
                         DetailScreen(
                             onBackClick = {
                                 navController.popBackStack()
