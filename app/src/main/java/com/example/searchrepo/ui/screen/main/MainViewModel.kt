@@ -5,8 +5,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.example.searchrepo.data.repository.GithubRepository
 import com.example.searchrepo.data.local.PreferenceManager
+import com.example.searchrepo.data.repository.GithubRepository
+import com.example.searchrepo.ui.model.RepoOriginModel
 import com.example.searchrepo.ui.model.RepoUiModel
 import com.example.searchrepo.ui.model.toDetailModel
 import com.example.searchrepo.ui.model.toMainModel
@@ -14,7 +15,6 @@ import com.example.searchrepo.ui.screen.detail.DetailRepoModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -37,11 +37,11 @@ class MainViewModel @Inject constructor(
     private val preferenceManager: PreferenceManager
 ) : ViewModel() {
 
-    private val repoCache = mutableMapOf<Int, RepoUiModel>()
+    private val repoCache = mutableMapOf<Int, RepoOriginModel>()
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
-    private val _pagingData = MutableStateFlow<PagingData<MainRepoModel>>(PagingData.empty())
-    val pagingData: StateFlow<PagingData<MainRepoModel>> = _pagingData.asStateFlow()
+    private val _pagingData = MutableStateFlow<PagingData<RepoUiModel>>(PagingData.empty())
+    val pagingData: StateFlow<PagingData<RepoUiModel>> = _pagingData.asStateFlow()
     val isDarkMode: StateFlow<Boolean> = preferenceManager.isDarkMode
         .stateIn(
             scope = viewModelScope,

@@ -23,9 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,12 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -50,14 +43,10 @@ import com.example.searchrepo.R
 import com.example.searchrepo.ui.components.CustomDialog
 import com.example.searchrepo.ui.components.RepoItem
 import com.example.searchrepo.ui.components.SearchTextField
-import com.example.searchrepo.ui.navigation.Route
-import com.example.searchrepo.ui.navigation.util.createNavType
+import com.example.searchrepo.ui.model.RepoUiModel
 import com.example.searchrepo.ui.screen.detail.DetailRepoModel
-import com.example.searchrepo.ui.screen.detail.DetailScreen
 import com.example.searchrepo.ui.theme.SearchRepoTheme
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
-import kotlin.reflect.typeOf
 
 @Composable
 fun MainScreen(
@@ -104,7 +93,7 @@ fun MainScreen(
 
 @Composable
 private fun MainContent(
-    pagingItems: LazyPagingItems<MainRepoModel>,
+    pagingItems: LazyPagingItems<RepoUiModel>,
     state: MainUiState,
     isDarkMode: Boolean,
     onSearchTextChanged: (String) -> Unit,
@@ -234,7 +223,7 @@ fun BoxScope.GuideText(text: String) {
 
 @Composable
 fun RepoList(
-    pagingItems: LazyPagingItems<MainRepoModel>,
+    pagingItems: LazyPagingItems<RepoUiModel>,
     onNavigateToDetail: (Int) -> Unit
 ) {
     LazyColumn(
@@ -280,7 +269,7 @@ private fun MainScreenPreview() {
     val fakeData = flowOf(
         PagingData.from(
             listOf(
-                MainRepoModel(1, "Sample", "Javas", "Java", 5000, 1000, "Jun", "", "")
+                RepoUiModel(1, "Sample", "Javas", "Java", 5000, 1000, "Jun", "", "")
             )
         )
     ).collectAsLazyPagingItems()

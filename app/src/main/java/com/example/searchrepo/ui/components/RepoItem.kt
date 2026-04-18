@@ -3,6 +3,7 @@ package com.example.searchrepo.ui.components
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -34,13 +36,17 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.example.searchrepo.R
-import com.example.searchrepo.ui.screen.main.MainRepoModel
+import com.example.searchrepo.ui.model.RepoUiModel
 import com.example.searchrepo.ui.util.GithubUtil
 import com.example.searchrepo.ui.util.toRelativeTime
 import com.example.searchrepo.ui.util.toShortenedString
 
 @Composable
-fun RepoItem(item: MainRepoModel, modifier: Modifier = Modifier) {
+fun RepoItem(
+    item: RepoUiModel,
+    modifier: Modifier = Modifier,
+    trailingContent : (@Composable (() -> Unit))? = null
+) {
     Column(
         modifier
             .padding(vertical = 5.dp, horizontal = 15.dp)
@@ -77,6 +83,11 @@ fun RepoItem(item: MainRepoModel, modifier: Modifier = Modifier) {
                 item.userName,
                 color = MaterialTheme.colorScheme.onBackground,
             )
+
+            trailingContent?.let {
+                Spacer(Modifier.weight(1f))
+                it.invoke()
+            }
         }
         Text(
             item.projectName,
@@ -168,7 +179,7 @@ private fun RepoItemPreview() {
     MaterialTheme {
         RepoItem(
             item =
-                MainRepoModel(
+                RepoUiModel(
                     id = 1,
                     projectName = "Test projectName",
                     description = "Test description",
@@ -180,5 +191,37 @@ private fun RepoItemPreview() {
                     updatedAt = "2026-02-26T08:25:15Z"
                 ),
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FavoriteItemPreview() {
+    MaterialTheme {
+        RepoItem(
+            item =
+                RepoUiModel(
+                    id = 1,
+                    projectName = "Test projectName",
+                    description = "Test description",
+                    language = "Kotlin",
+                    stargazersCount = 3000,
+                    forksCount = 10000,
+                    userName = "TestUserName",
+                    avatarUrl = "",
+                    updatedAt = "2026-02-26T08:25:15Z"
+                ),
+        ){
+            Icon(
+                painter = painterResource(R.drawable.ic_git_heart_filled),
+                contentDescription = "",
+                Modifier
+                    .size(20.dp)
+                    .clickable {
+//                        removeFavorite(favoriteRepo.id)
+                    },
+                tint = Color.Unspecified
+            )
+        }
     }
 }

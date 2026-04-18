@@ -4,15 +4,15 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.searchrepo.data.api.GithubAPI
 import com.example.searchrepo.data.model.toUiModel
-import com.example.searchrepo.ui.model.RepoUiModel
+import com.example.searchrepo.ui.model.RepoOriginModel
 
 class GithubPagingSource(
     private val githubApi: GithubAPI,
     private val query: String
-) : PagingSource<Int, RepoUiModel>() {
+) : PagingSource<Int, RepoOriginModel>() {
 
     // 데이터 로드
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, RepoUiModel> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, RepoOriginModel> {
         // 로드할 페이지 번호, 초기값은 null이므로 1로 설정
         val page = params.key ?: 1
 
@@ -34,7 +34,7 @@ class GithubPagingSource(
     }
 
     // 데이터가 무효화되었을 때 다시 시작할 키를 결정하는 함수
-    override fun getRefreshKey(state: PagingState<Int, RepoUiModel>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, RepoOriginModel>): Int? {
         // 스크롤 위치(anchorPosition)를 기준으로 가장 가까운 페이지의 키를 반환합니다.
         return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)

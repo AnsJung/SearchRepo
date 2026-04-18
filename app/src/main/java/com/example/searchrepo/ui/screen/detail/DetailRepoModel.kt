@@ -1,6 +1,6 @@
 package com.example.searchrepo.ui.screen.detail
 
-import com.example.searchrepo.ui.model.RepoUiModel
+import com.example.searchrepo.ui.model.RepoOriginModel
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -24,8 +24,8 @@ data class DetailRepoModel(
 ){
 }
 
-fun DetailRepoModel.toUiModel(): RepoUiModel {
-    return RepoUiModel(
+fun DetailRepoModel.toUiModel(): RepoOriginModel {
+    return RepoOriginModel(
         id = this.id,
         projectName = this.projectName,
         description = this.description,

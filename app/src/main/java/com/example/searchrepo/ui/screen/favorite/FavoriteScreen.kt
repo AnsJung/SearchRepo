@@ -36,7 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.searchrepo.R
-import com.example.searchrepo.ui.components.FavoriteItem
+import com.example.searchrepo.ui.components.RepoItem
+import com.example.searchrepo.ui.model.RepoUiModel
 import com.example.searchrepo.ui.screen.detail.DetailRepoModel
 
 @Composable
@@ -144,7 +145,7 @@ fun FavoriteScreen(
 
 @Composable
 fun FavoriteList(
-    favoriteRepos: List<FavoriteRepoModel>,
+    favoriteRepos: List<RepoUiModel>,
     onNavigateToDetail: (Int) -> Unit,
     removeFavorite: (Int) -> Unit
 ) {
@@ -157,13 +158,21 @@ fun FavoriteList(
         )
     ) {
         items(favoriteRepos, key = { it.id }) { favoriteRepo ->
-            FavoriteItem(
-                favoriteRepo,
-                Modifier.clickable { onNavigateToDetail(favoriteRepo.id) },
-                removeFavorite = {
-                    removeFavorite(favoriteRepo.id)
-                }
-            )
+            RepoItem(
+                item = favoriteRepo,
+                modifier = Modifier.clickable { onNavigateToDetail(favoriteRepo.id) },
+            ){
+                Icon(
+                    painter = painterResource(R.drawable.ic_git_heart_filled),
+                    contentDescription = "",
+                    Modifier
+                        .size(20.dp)
+                        .clickable {
+                            removeFavorite(favoriteRepo.id)
+                        },
+                    tint = Color.Unspecified
+                )
+            }
         }
     }
 }

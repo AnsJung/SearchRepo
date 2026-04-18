@@ -3,6 +3,7 @@ package com.example.searchrepo.ui.screen.favorite
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.searchrepo.data.local.PreferenceManager
+import com.example.searchrepo.ui.model.RepoOriginModel
 import com.example.searchrepo.ui.model.RepoUiModel
 import com.example.searchrepo.ui.model.toDetailModel
 import com.example.searchrepo.ui.model.toFavoriteModel
@@ -22,8 +23,8 @@ class FavoriteViewModel @Inject constructor(
     private val preferenceManager: PreferenceManager
 ) : ViewModel() {
 
-    private var _originRepos = MutableStateFlow<List<RepoUiModel>>(emptyList())
-    val favoriteRepos: StateFlow<List<FavoriteRepoModel>> = preferenceManager.favoriteRepos
+    private var _originRepos = MutableStateFlow<List<RepoOriginModel>>(emptyList())
+    val favoriteRepos: StateFlow<List<RepoUiModel>> = preferenceManager.favoriteRepos
         .onEach { newList ->
             _originRepos.value = newList
         }

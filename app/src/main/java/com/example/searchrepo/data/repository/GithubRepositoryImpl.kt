@@ -5,7 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.searchrepo.data.api.GithubAPI
 import com.example.searchrepo.data.paging.GithubPagingSource
-import com.example.searchrepo.ui.model.RepoUiModel
+import com.example.searchrepo.ui.model.RepoOriginModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -14,7 +14,7 @@ class GithubRepositoryImpl @Inject constructor(
 ) : GithubRepository {
 
     // 스크롤에 따라 계속 요청하는 스트림 방식이기때문에 Flow를 사용
-    override fun getSearchRepoPaging(query: String): Flow<PagingData<RepoUiModel>> {
+    override fun getSearchRepoPaging(query: String): Flow<PagingData<RepoOriginModel>> {
         // Pager 페이징의 공정
         return Pager(
             config = PagingConfig(

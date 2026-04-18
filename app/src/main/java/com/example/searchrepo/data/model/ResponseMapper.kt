@@ -1,9 +1,9 @@
 package com.example.searchrepo.data.model
 
-import com.example.searchrepo.ui.model.RepoUiModel
+import com.example.searchrepo.ui.model.RepoOriginModel
 
-fun Repo.toUiModel(): RepoUiModel {
-    return RepoUiModel(
+fun Repo.toUiModel(): RepoOriginModel {
+    return RepoOriginModel(
         id = this.id,
         projectName = this.name,
         description = this.description,

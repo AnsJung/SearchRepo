@@ -5,10 +5,9 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.searchrepo.ui.model.RepoUiModel
+import com.example.searchrepo.ui.model.RepoOriginModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -26,10 +25,10 @@ class PreferenceManager @Inject constructor(
         preferences[DARK_MODE_KEY] ?: false
     }
 
-    val favoriteRepos: Flow<List<RepoUiModel>> = context.dataStore.data
+    val favoriteRepos: Flow<List<RepoOriginModel>> = context.dataStore.data
         .map { preferences ->
             val json = preferences[FAVORITE_LIST_KEY] ?: "[]"
-            Json.decodeFromString<List<RepoUiModel>>(json)
+            Json.decodeFromString<List<RepoOriginModel>>(json)
         }
 
     suspend fun setDarkMode(enabled: Boolean) {
@@ -38,10 +37,10 @@ class PreferenceManager @Inject constructor(
         }
     }
 
-    suspend fun toggleFavorite(repo: RepoUiModel) {
+    suspend fun toggleFavorite(repo: RepoOriginModel) {
         context.dataStore.edit { preferences ->
             val currentJson = preferences[FAVORITE_LIST_KEY] ?: "[]"
-            val currentList = Json.decodeFromString<List<RepoUiModel>>(currentJson)
+            val currentList = Json.decodeFromString<List<RepoOriginModel>>(currentJson)
 
             val isExist = currentList.any { it.id == repo.id }
             val newList = if (isExist) {
