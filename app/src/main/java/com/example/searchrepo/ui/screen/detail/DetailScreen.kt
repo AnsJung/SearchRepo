@@ -119,7 +119,7 @@ fun DetailScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(top=paddingValues.calculateTopPadding())
+                    .padding(top = paddingValues.calculateTopPadding())
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 15.dp)
                     .padding(top = 10.dp, bottom = 10.dp),
@@ -154,76 +154,71 @@ fun DetailScreen(
             }
         }
     }
+}
 
+@Composable
+fun DetailSectionContainer(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(16.dp)
+    ) {
+        content()
+    }
 }
 
 @Composable
 fun OwnerArea(avatarUrl: String, userName: String) {
     var isImageVisible by remember { mutableStateOf(true) }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                MaterialTheme.colorScheme.background,
-                shape = RoundedCornerShape(10.dp)
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant,
-                shape = RoundedCornerShape(10.dp)
-            )
-            .padding(16.dp)
-    )
-    {
-        if (isImageVisible) {
-            AsyncImage(
-                model = avatarUrl,
-                error = painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = "유저 아이콘",
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop,
-                onError = { error ->
-                    Log.e("JH", error.result.throwable.toString())
-                    isImageVisible = false
-                }
-            )
+    DetailSectionContainer {
+        Row {
+            if (isImageVisible) {
+                AsyncImage(
+                    model = avatarUrl,
+                    error = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = "유저 아이콘",
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                    onError = { error ->
+                        Log.e("JH", error.result.throwable.toString())
+                        isImageVisible = false
+                    }
+                )
 
-        }
-        Spacer(Modifier.width(10.dp))
-        Column {
-            Text(
-                "소유자",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                userName,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontWeight = FontWeight.Medium
-            )
+            }
+            Spacer(Modifier.width(10.dp))
+            Column {
+                Text(
+                    "소유자",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    userName,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
     }
 }
 
 @Composable
 fun DescriptionArea(description: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                MaterialTheme.colorScheme.background,
-                shape = RoundedCornerShape(10.dp)
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant,
-                shape = RoundedCornerShape(10.dp)
-            )
-            .padding(16.dp)
-    ) {
+    DetailSectionContainer {
         Text(
             description,
             color = MaterialTheme.colorScheme.onBackground,
@@ -234,45 +229,34 @@ fun DescriptionArea(description: String) {
 
 @Composable
 fun TopicsArea(topics: List<String>) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                MaterialTheme.colorScheme.background,
-                shape = RoundedCornerShape(10.dp)
+    DetailSectionContainer {
+        Column {
+            Text(
+                "토픽", color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 14.sp
             )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant,
-                shape = RoundedCornerShape(10.dp)
-            )
-            .padding(16.dp)
-    ) {
-        Text(
-            "토픽", color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 14.sp
-        )
-        Spacer(Modifier.height(10.dp))
-        FlowRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            topics.forEach { text ->
-                Text(
-                    text = text,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            shape = CircleShape
-                        )
-                        .padding(horizontal = 10.dp, vertical = 2.dp)
-                )
+            Spacer(Modifier.height(10.dp))
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                topics.forEach { text ->
+                    Text(
+                        text = text,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                shape = CircleShape
+                            )
+                            .padding(horizontal = 10.dp, vertical = 2.dp)
+                    )
+                }
             }
         }
     }
@@ -285,50 +269,39 @@ fun CountArea(
     watchersCount: Int,
     openIssuesCount: Int
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                MaterialTheme.colorScheme.background,
-                shape = RoundedCornerShape(10.dp)
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant,
-                shape = RoundedCornerShape(10.dp)
-            )
-            .padding(16.dp)
-    ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            StatItem(
-                iconResId = R.drawable.ic_git_star,
-                label = "Stars",
-                value = stargazersCount,
-                modifier = Modifier.weight(1f)
-            )
-            StatItem(
-                iconResId = R.drawable.ic_git_fork,
-                iconColor = Color.Gray,
-                label = "Forks",
-                value = forksCount,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Row(modifier = Modifier.fillMaxWidth()) {
-            StatItem(
-                iconResId = R.drawable.ic_git_eye,
-                iconColor = Color.Gray,
-                label = "Watchers",
-                value = watchersCount,
-                modifier = Modifier.weight(1f)
-            )
-            StatItem(
-                iconResId = R.drawable.ic_issues,
-                iconColor = Color.Gray,
-                label = "Issues",
-                value = openIssuesCount,
-                modifier = Modifier.weight(1f)
-            )
+    DetailSectionContainer {
+        Column {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                StatItem(
+                    iconResId = R.drawable.ic_git_star,
+                    label = "Stars",
+                    value = stargazersCount,
+                    modifier = Modifier.weight(1f)
+                )
+                StatItem(
+                    iconResId = R.drawable.ic_git_fork,
+                    iconColor = Color.Gray,
+                    label = "Forks",
+                    value = forksCount,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(modifier = Modifier.fillMaxWidth()) {
+                StatItem(
+                    iconResId = R.drawable.ic_git_eye,
+                    iconColor = Color.Gray,
+                    label = "Watchers",
+                    value = watchersCount,
+                    modifier = Modifier.weight(1f)
+                )
+                StatItem(
+                    iconResId = R.drawable.ic_issues,
+                    iconColor = Color.Gray,
+                    label = "Issues",
+                    value = openIssuesCount,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }
@@ -354,7 +327,12 @@ fun StatItem(
         Spacer(modifier = Modifier.width(12.dp))
         Column {
             Text(text = label, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
-            Text(text = value.toShortenedString(), color=MaterialTheme.colorScheme.onBackground,fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(
+                text = value.toShortenedString(),
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
         }
     }
 }
@@ -367,50 +345,39 @@ fun InfoArea(
     createdAt: String,
     updatedAt: String
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                MaterialTheme.colorScheme.background,
-                shape = RoundedCornerShape(10.dp)
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant,
-                shape = RoundedCornerShape(10.dp)
-            )
-            .padding(16.dp),
-    ) {
-        language?.let {
+    DetailSectionContainer {
+        Column {
+            language?.let {
+                InfoRow(
+                    languageColor = GithubUtil.getLanguageColor(it), // C 언어의 파란색 점
+                    label = "언어",
+                    value = it
+                )
+            }
             InfoRow(
-                languageColor = GithubUtil.getLanguageColor(it), // C 언어의 파란색 점
-                label = "언어",
-                value = it
+                iconResId = R.drawable.ic_git_branch, // 아까 저장한 브랜치 아이콘
+                label = "기본 브랜치",
+                value = defaultBranch
+            )
+            license?.let {
+                InfoRow(
+                    // 라이선스 아이콘이 별도로 없다면 ic_issues 등을 활용하거나 빈 박스 처리
+                    iconResId = R.drawable.ic_issues,
+                    label = "라이선스",
+                    value = it
+                )
+            }
+            InfoRow(
+                iconResId = R.drawable.ic_calendar, // 아까 저장한 달력 아이콘
+                label = "생성일",
+                value = createdAt.toKoreanDate()
+            )
+            InfoRow(
+                iconResId = R.drawable.ic_calendar,
+                label = "최근 업데이트",
+                value = updatedAt.toKoreanDate()
             )
         }
-        InfoRow(
-            iconResId = R.drawable.ic_git_branch, // 아까 저장한 브랜치 아이콘
-            label = "기본 브랜치",
-            value = defaultBranch
-        )
-        license?.let {
-            InfoRow(
-                // 라이선스 아이콘이 별도로 없다면 ic_issues 등을 활용하거나 빈 박스 처리
-                iconResId = R.drawable.ic_issues,
-                label = "라이선스",
-                value = it
-            )
-        }
-        InfoRow(
-            iconResId = R.drawable.ic_calendar, // 아까 저장한 달력 아이콘
-            label = "생성일",
-            value = createdAt.toKoreanDate()
-        )
-        InfoRow(
-            iconResId = R.drawable.ic_calendar,
-            label = "최근 업데이트",
-            value = updatedAt.toKoreanDate()
-        )
     }
 }
 
@@ -471,60 +438,32 @@ fun InfoRow(
 @Composable
 fun MoveArea(htmlUrl: String) {
     val context = LocalContext.current
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    htmlUrl.toUri()
-                )
-                context.startActivity(intent)
-            }
-            .background(
-                MaterialTheme.colorScheme.background,
-                shape = RoundedCornerShape(10.dp)
+    DetailSectionContainer(
+        modifier = Modifier.clickable {
+            val intent = Intent(
+                Intent.ACTION_VIEW,
+                htmlUrl.toUri()
             )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant,
-                shape = RoundedCornerShape(10.dp)
-            )
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+            context.startActivity(intent)
+        }
     ) {
-        Text("Github에서 보기", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp)
-        Icon(
-            painter = painterResource(R.drawable.ic_external_link), tint = Color.Gray,
-            contentDescription = "페이지로 이동",
-            modifier = Modifier.size(20.dp)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("Github에서 보기", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp)
+            Icon(
+                painter = painterResource(R.drawable.ic_external_link), tint = Color.Gray,
+                contentDescription = "페이지로 이동",
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
 
 @Preview(showBackground = true, name = "GitHub 상세 화면 프리뷰")
 @Composable
 private fun DetailScreenPreview() {
-    // JSON의 첫 번째 아이템 데이터를 기반으로 생성
-    val previewData = DetailRepoModel(
-        projectName = "AnimationCalendar",
-        userName = "AnsJung",
-        avatarUrl = "https://avatars.githubusercontent.com/u/77667819?v=4",
-        description = null,
-        stargazersCount = 1000,
-        forksCount = 20000,
-        watchersCount = 100,
-        openIssuesCount = 30,
-        language = "Kotlin",
-        defaultBranch = "master",
-        license = null,
-        createdAt = "2026-02-26T08:05:12Z",
-        updatedAt = "2026-02-26T08:25:15Z",
-        topics = emptyList(),
-        htmlUrl = "https://github.com/AnsJung/AnimationCalendar"
-    )
-
     MaterialTheme {
         DetailScreen(
             onBackClick = { /* 테스트 시 로그 출력 등 */ }
