@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -39,6 +37,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.example.searchrepo.R
+import com.example.searchrepo.ui.components.AppTopBar
 import com.example.searchrepo.ui.components.CustomDialog
 import com.example.searchrepo.ui.components.RepoItem
 import com.example.searchrepo.ui.components.SearchTextField
@@ -121,53 +120,38 @@ private fun MainContent(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(top = 10.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(R.string.main_title),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(start = 10.dp)
-                )
-                Spacer(Modifier.weight(1f))
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable {
-                            onRefreshSearched()
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_refresh),
-                        contentDescription = stringResource(R.string.cd_refresh),
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Spacer(Modifier.width(10.dp))
+            AppTopBar(
+                title = stringResource(R.string.main_title),
+                actions = {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clickable { onRefreshSearched() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_refresh),
+                            contentDescription = stringResource(R.string.cd_refresh),
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
 
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable {
-                            onChangeTheme()
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(themeIcon),
-                        contentDescription = themeContentDescription,
-                        modifier = Modifier.size(20.dp),
-                        tint = if (isDarkMode) Color(0xffFBBF24) else Color.Unspecified
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clickable { onChangeTheme() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(themeIcon),
+                            contentDescription = themeContentDescription,
+                            modifier = Modifier.size(20.dp),
+                            tint = if (isDarkMode) Color(0xffFBBF24) else Color.Unspecified
+                        )
+                    }
                 }
-                Spacer(Modifier.width(10.dp))
-            }
-
+            )
             SearchTextField(
                 state.searchText,
                 onValueChange = onSearchTextChanged,

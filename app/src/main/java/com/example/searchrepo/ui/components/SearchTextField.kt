@@ -37,7 +37,7 @@ fun SearchTextField(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 15.dp, start = 10.dp, end = 10.dp)
+            .padding(start = 10.dp, end = 10.dp)
             .background(
                 color = MaterialTheme.colorScheme.tertiary, // Color(0xFF364152)
                 shape = RoundedCornerShape(10.dp)

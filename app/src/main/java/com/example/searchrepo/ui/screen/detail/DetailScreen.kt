@@ -51,6 +51,7 @@ import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.searchrepo.R
+import com.example.searchrepo.ui.components.AppTopBar
 import com.example.searchrepo.ui.util.GithubUtil
 import com.example.searchrepo.ui.util.toKoreanDate
 import com.example.searchrepo.ui.util.toShortenedString
@@ -70,49 +71,33 @@ fun DetailScreen(
                 .fillMaxSize()
                 .statusBarsPadding(),
             topBar = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(70.dp)
-                        .background(MaterialTheme.colorScheme.background),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Default.ArrowBack,
-                        contentDescription = stringResource(R.string.cd_back),
-                        modifier = Modifier
-                            .clickable {
-                                onBackClick()
-                            }
-                            .padding(start = 15.dp)
-                            .size(24.dp),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(modifier = Modifier.width(15.dp))
-                    Text(
-                        text = detailViewModel.detailRepoModel.projectName,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-
-                    Spacer(Modifier.weight(1f))
-                    Icon(
-                        painter =
-                            if (isFavorite) {
+                AppTopBar(
+                    title = detailViewModel.detailRepoModel.projectName,
+                    navigationIcon = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_back),
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clickable { onBackClick() },
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    actions = {
+                        Icon(
+                            painter = if (isFavorite) {
                                 painterResource(R.drawable.ic_git_heart_filled)
                             } else {
                                 painterResource(R.drawable.ic_git_heart_border)
                             },
-                        contentDescription = stringResource(R.string.cd_toggle_favorite),
-                        Modifier
-                            .size(20.dp)
-                            .clickable {
-                                detailViewModel.toggleFavoriteItem()
-                            },
-                        tint = Color.Unspecified
-                    )
-                    Spacer(Modifier.width(20.dp))
-                }
+                            contentDescription = stringResource(R.string.cd_toggle_favorite),
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable { detailViewModel.toggleFavoriteItem() },
+                            tint = Color.Unspecified
+                        )
+                    }
+                )
             })
         { paddingValues ->
             Column(
