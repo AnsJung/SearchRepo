@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.example.searchrepo.data.local.PreferenceManager
+import com.example.searchrepo.data.local.PreferenceRepository
 import com.example.searchrepo.data.repository.GithubRepository
 import com.example.searchrepo.ui.model.RepoOriginModel
 import com.example.searchrepo.ui.model.RepoUiModel
@@ -34,7 +34,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val githubRepository: GithubRepository,
-    private val preferenceManager: PreferenceManager
+    private val preferenceRepository: PreferenceRepository
 ) : ViewModel() {
 
     private val repoCache = mutableMapOf<Int, RepoOriginModel>()
@@ -42,7 +42,7 @@ class MainViewModel @Inject constructor(
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
     private val _pagingData = MutableStateFlow<PagingData<RepoUiModel>>(PagingData.empty())
     val pagingData: StateFlow<PagingData<RepoUiModel>> = _pagingData.asStateFlow()
-    val isDarkMode: StateFlow<Boolean> = preferenceManager.isDarkMode
+    val isDarkMode: StateFlow<Boolean> = preferenceRepository.isDarkMode
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -117,7 +117,7 @@ class MainViewModel @Inject constructor(
 
     fun setDarkMode(enabled: Boolean) {
         viewModelScope.launch {
-            preferenceManager.setDarkMode(enabled)
+            preferenceRepository.setDarkMode(enabled)
         }
     }
 

@@ -17,27 +17,27 @@ private val Context.dataStore by preferencesDataStore("configs")
 
 class PreferenceManager @Inject constructor(
     @ApplicationContext private val context: Context
-) {
+) : PreferenceRepository {
     private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode_enabled")
     private val FAVORITE_LIST_KEY = stringPreferencesKey("favorite_list")
 
-    val isDarkMode: Flow<Boolean> = context.dataStore.data.map { preferences ->
+    override val isDarkMode: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[DARK_MODE_KEY] ?: false
     }
 
-    val favoriteRepos: Flow<List<RepoOriginModel>> = context.dataStore.data
+    override val favoriteRepos: Flow<List<RepoOriginModel>> = context.dataStore.data
         .map { preferences ->
             val json = preferences[FAVORITE_LIST_KEY] ?: "[]"
             Json.decodeFromString<List<RepoOriginModel>>(json)
         }
 
-    suspend fun setDarkMode(enabled: Boolean) {
+    override suspend fun setDarkMode(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[DARK_MODE_KEY] = enabled
         }
     }
 
-    suspend fun toggleFavorite(repo: RepoOriginModel) {
+    override suspend fun toggleFavorite(repo: RepoOriginModel) {
         context.dataStore.edit { preferences ->
             val currentJson = preferences[FAVORITE_LIST_KEY] ?: "[]"
             val currentList = Json.decodeFromString<List<RepoOriginModel>>(currentJson)

@@ -1,5 +1,7 @@
 package com.example.searchrepo.di
 
+import com.example.searchrepo.data.local.PreferenceManager
+import com.example.searchrepo.data.local.PreferenceRepository
 import com.example.searchrepo.data.repository.GithubRepository
 import com.example.searchrepo.data.repository.GithubRepositoryImpl
 import dagger.Binds
@@ -18,4 +20,9 @@ abstract class RepositoryModule {
         githubRepositoryImpl: GithubRepositoryImpl
     ): GithubRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindPreferenceRepository(
+        preferenceManager: PreferenceManager
+    ): PreferenceRepository
 }
