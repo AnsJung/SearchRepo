@@ -19,15 +19,42 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
 
+    }
+    flavorDimensions += "env"
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            buildConfigField(
+                "String",
+                "BASE_URL",
+                "\"https://dev.api.com/\""
+            )
+            resValue("string", "app_name", "SearchRepo Dev")
+        }
+
+        create("prod") {
+            dimension = "env"
+
+            buildConfigField(
+                "String",
+                "BASE_URL",
+                "\"https://api.github.com/\""
+            )
+            resValue("string", "app_name", "SearchRepo")
+        }
+    }
     buildTypes {
+        debug{
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -39,6 +66,8 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+
     }
 }
 
