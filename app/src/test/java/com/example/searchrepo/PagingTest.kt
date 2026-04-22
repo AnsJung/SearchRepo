@@ -12,6 +12,29 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class PagingTest {
+    private fun repo(id: Int = 1): Repo {
+        return Repo(
+            id = id,
+            name = "TestRepo$id",
+            description = "desc",
+            htmlUrl = "url",
+            language = "Kotlin",
+            stargazersCount = 10,
+            forksCount = 5,
+            owner = Owner(
+                login = "jun",
+                avatarUrl = ""
+            ),
+            updatedAt = "2024-01-01T00:00:00Z",
+            topics = emptyList(),
+            watchersCount = 3,
+            openIssuesCount = 1,
+            license = null,
+            defaultBranch = "main",
+            createdAt = "2024-01-01T00:00:00Z"
+        )
+    }
+
     @Test
     fun `정상 데이터면 LoadResult_Page 반환`() = runTest {
         val fakeApi = FakeGithubAPI()
@@ -19,28 +42,7 @@ class PagingTest {
         fakeApi.response = ResponseRepos(
             totalCount = 1,
             incompleteResults = false,
-            items = listOf(
-                Repo(
-                    id = 1,
-                    name = "TestRepo",
-                    description = "desc",
-                    htmlUrl = "url",
-                    language = "Kotlin",
-                    stargazersCount = 10,
-                    forksCount = 5,
-                    owner = Owner(
-                        login = "jun",
-                        avatarUrl = ""
-                    ),
-                    updatedAt = "2024-01-01T00:00:00Z",
-                    topics = emptyList(),
-                    watchersCount = 3,
-                    openIssuesCount = 1,
-                    license = null,
-                    defaultBranch = "main",
-                    createdAt = "2024-01-01T00:00:00Z"
-                )
-            )
+            items = listOf(repo())
         )
 
         val pagingSource = GithubPagingSource(fakeApi, "android")
@@ -104,5 +106,55 @@ class PagingTest {
         )
 
         assert(result is PagingSource.LoadResult.Error)
+    }
+
+    @Test
+    fun `GitHub 검색 제한 1000개에 도달하면 nextKey는 null이다`() = runTest {
+        val fakeApi = FakeGithubAPI()
+        fakeApi.response = ResponseRepos(
+            totalCount = 5000,
+            incompleteResults = false,
+            items = (1..20).map { repo(it) }
+        )
+
+        val pagingSource = GithubPagingSource(fakeApi, "android")
+
+        val result = pagingSource.load(
+            PagingSource.LoadParams.Append(
+                key = 50,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        )
+
+        assert(result is PagingSource.LoadResult.Page)
+
+        val page = result as PagingSource.LoadResult.Page
+        assertEquals(null, page.nextKey)
+    }
+
+    @Test
+    fun `전체 결과 수에 도달하면 nextKey는 null이다`() = runTest {
+        val fakeApi = FakeGithubAPI()
+        fakeApi.response = ResponseRepos(
+            totalCount = 40,
+            incompleteResults = false,
+            items = (1..20).map { repo(it) }
+        )
+
+        val pagingSource = GithubPagingSource(fakeApi, "android")
+
+        val result = pagingSource.load(
+            PagingSource.LoadParams.Append(
+                key = 2,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        )
+
+        assert(result is PagingSource.LoadResult.Page)
+
+        val page = result as PagingSource.LoadResult.Page
+        assertEquals(null, page.nextKey)
     }
 }

@@ -3,8 +3,12 @@ package com.example.searchrepo.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.searchrepo.data.api.GithubAPI
-import com.example.searchrepo.data.model.toUiModel
 import com.example.searchrepo.ui.model.RepoOriginModel
+import com.example.searchrepo.ui.model.toUiModel
+import kotlin.coroutines.cancellation.CancellationException
+
+private const val PAGE_SIZE = 20
+private const val GITHUB_SEARCH_MAX_RESULTS = 1000
 
 class GithubPagingSource(
     private val githubApi: GithubAPI,
@@ -18,16 +22,30 @@ class GithubPagingSource(
 
         return try {
             // 서버에 몇번째 페이지를 몇 개 가져올지 전달
-            val response = githubApi.searchRepos(query, page, params.loadSize)
+            val response = githubApi.searchRepos(query, page, PAGE_SIZE)
             val items = response.items.map { it.toUiModel() }
+            val loadedCount = page * PAGE_SIZE
+            val reachedApiLimit = loadedCount >= GITHUB_SEARCH_MAX_RESULTS
+            val reachedTotalCount = loadedCount >= response.totalCount
             // 결과 반환
             LoadResult.Page(
                 data = items,
                 // 1페이지면 더 이상 없으므로 null
                 prevKey = if (page == 1) null else page - 1,
                 // 가져온 데이터가 없거나 설정된 개수보다 적으면 null
-                nextKey = if (items.isEmpty() || items.size < params.loadSize) null else page + 1
+                nextKey = if (
+                    items.isEmpty() ||
+                    items.size < PAGE_SIZE ||
+                    reachedApiLimit ||
+                    reachedTotalCount
+                ) {
+                    null
+                } else {
+                    page + 1
+                }
             )
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             LoadResult.Error(e)
         }

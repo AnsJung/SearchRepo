@@ -1,6 +1,6 @@
-package com.example.searchrepo.data.model
+package com.example.searchrepo.ui.model
 
-import com.example.searchrepo.ui.model.RepoOriginModel
+import com.example.searchrepo.data.model.Repo
 
 fun Repo.toUiModel(): RepoOriginModel {
     return RepoOriginModel(

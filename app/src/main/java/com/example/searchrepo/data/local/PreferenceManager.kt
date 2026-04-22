@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.searchrepo.ui.model.RepoOriginModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -20,15 +19,18 @@ class PreferenceManager @Inject constructor(
 ) : PreferenceRepository {
     private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode_enabled")
     private val FAVORITE_LIST_KEY = stringPreferencesKey("favorite_list")
+    private val json = Json { ignoreUnknownKeys = true }
 
     override val isDarkMode: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[DARK_MODE_KEY] ?: false
     }
 
-    override val favoriteRepos: Flow<List<RepoOriginModel>> = context.dataStore.data
-        .map { preferences ->
-            val json = preferences[FAVORITE_LIST_KEY] ?: "[]"
-            Json.decodeFromString<List<RepoOriginModel>>(json)
+    override val favoriteRepos: Flow<List<FavoriteRepoPreference>> =
+        context.dataStore.data.map { preferences ->
+            val favoriteReposJson = preferences[FAVORITE_LIST_KEY] ?: "[]"
+            runCatching {
+                json.decodeFromString<List<FavoriteRepoPreference>>(favoriteReposJson)
+            }.getOrDefault(emptyList())
         }
 
     override suspend fun setDarkMode(enabled: Boolean) {
@@ -37,10 +39,12 @@ class PreferenceManager @Inject constructor(
         }
     }
 
-    override suspend fun toggleFavorite(repo: RepoOriginModel) {
+    override suspend fun toggleFavorite(repo: FavoriteRepoPreference) {
         context.dataStore.edit { preferences ->
             val currentJson = preferences[FAVORITE_LIST_KEY] ?: "[]"
-            val currentList = Json.decodeFromString<List<RepoOriginModel>>(currentJson)
+            val currentList = runCatching {
+                json.decodeFromString<List<FavoriteRepoPreference>>(currentJson)
+            }.getOrDefault(emptyList())
 
             val isExist = currentList.any { it.id == repo.id }
             val newList = if (isExist) {
@@ -49,7 +53,7 @@ class PreferenceManager @Inject constructor(
                 currentList + repo
             }
 
-            preferences[FAVORITE_LIST_KEY] = Json.encodeToString(newList)
+            preferences[FAVORITE_LIST_KEY] = json.encodeToString(newList)
         }
     }
 

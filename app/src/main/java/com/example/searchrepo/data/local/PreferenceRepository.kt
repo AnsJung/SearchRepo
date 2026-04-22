@@ -1,12 +1,11 @@
 package com.example.searchrepo.data.local
 
-import com.example.searchrepo.ui.model.RepoOriginModel
 import kotlinx.coroutines.flow.Flow
 
 interface PreferenceRepository {
     val isDarkMode: Flow<Boolean>
-    val favoriteRepos: Flow<List<RepoOriginModel>>
+    val favoriteRepos: Flow<List<FavoriteRepoPreference>>
 
     suspend fun setDarkMode(enabled: Boolean)
-    suspend fun toggleFavorite(repo: RepoOriginModel)
+    suspend fun toggleFavorite(repo: FavoriteRepoPreference)
 }

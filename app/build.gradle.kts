@@ -29,7 +29,7 @@ android {
             buildConfigField(
                 "String",
                 "BASE_URL",
-                "\"https://dev.api.com/\""
+                "\"https://api.github.com/\""
             )
             resValue("string", "app_name", "SearchRepo Dev")
         }

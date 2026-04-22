@@ -2,8 +2,8 @@ package com.example.searchrepo.ui.screen.favorite
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.searchrepo.data.local.PreferenceManager
-import com.example.searchrepo.ui.model.RepoOriginModel
+import com.example.searchrepo.data.local.FavoriteRepoPreference
+import com.example.searchrepo.data.local.PreferenceRepository
 import com.example.searchrepo.ui.model.RepoUiModel
 import com.example.searchrepo.ui.model.toDetailModel
 import com.example.searchrepo.ui.model.toFavoriteModel
@@ -20,11 +20,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteViewModel @Inject constructor(
-    private val preferenceManager: PreferenceManager
+    private val preferenceRepository: PreferenceRepository
 ) : ViewModel() {
 
-    private var _originRepos = MutableStateFlow<List<RepoOriginModel>>(emptyList())
-    val favoriteRepos: StateFlow<List<RepoUiModel>> = preferenceManager.favoriteRepos
+    private var _originRepos = MutableStateFlow<List<FavoriteRepoPreference>>(emptyList())
+    val favoriteRepos: StateFlow<List<RepoUiModel>> = preferenceRepository.favoriteRepos
         .onEach { newList ->
             _originRepos.value = newList
         }
@@ -42,7 +42,7 @@ class FavoriteViewModel @Inject constructor(
             // 원본 리스트에서 해당 ID의 객체를 찾아 삭제 요청
             val target = _originRepos.value.find { it.id == id }
             target?.let {
-                preferenceManager.toggleFavorite(it)
+                preferenceRepository.toggleFavorite(it)
             }
         }
     }
