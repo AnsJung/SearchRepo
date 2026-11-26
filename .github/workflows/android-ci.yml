@@ -58,3 +58,9 @@ jobs:
           test -s "$apk"
           ls -lh "$apk"
 
+      - name: 디버그 APK 아티팩트 업로드
+        uses: actions/upload-artifact@v7
+        with:
+          name: searchrepo-dev-debug-apk
+          path: app/build/outputs/apk/dev/debug/app-dev-debug.apk
+          if-no-files-found: error
