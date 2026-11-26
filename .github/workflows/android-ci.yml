@@ -1,0 +1,59 @@
+name: SearchRepo PR 검사
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  android-ci:
+    name: 검색·Paging 테스트 및 Android 빌드
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: 저장소 코드 가져오기
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: JDK 21 및 Gradle 캐시 설정
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: 검색·Paging 포함 단위 테스트 실행
+        run: ./gradlew --console=plain :app:testDevDebugUnitTest --rerun
+
+      - name: 검색·Paging 테스트 결과 확인
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from xml.etree import ElementTree
+
+          reports = Path("app/build/test-results/testDevDebugUnitTest")
+          for name in ("MainViewModelTest", "PagingTest"):
+              report = reports / f"TEST-com.example.searchrepo.{name}.xml"
+              if not report.is_file():
+                  raise SystemExit(f"{name}: 테스트 결과 파일이 없습니다.")
+              suite = ElementTree.parse(report).getroot()
+              tests = int(suite.get("tests", "0"))
+              skipped = int(suite.get("skipped", "0"))
+              failures = int(suite.get("failures", "0"))
+              errors = int(suite.get("errors", "0"))
+              executed = tests - skipped
+              print(f"{name}: 실행={executed}, 실패={failures}, 오류={errors}, 건너뜀={skipped}")
+              if executed <= 0 or failures or errors:
+                  raise SystemExit(f"{name}: 테스트 실행 결과를 확인해 주세요.")
+          PY
+
+      - name: Android 디버그 APK 빌드
+        run: ./gradlew --console=plain :app:assembleDevDebug
+
+      - name: APK 생성 확인
+        run: |
+          apk=app/build/outputs/apk/dev/debug/app-dev-debug.apk
+          test -s "$apk"
+          ls -lh "$apk"
