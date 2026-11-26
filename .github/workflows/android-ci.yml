@@ -1,6 +1,8 @@
 name: SearchRepo PR 검사
 
-on: pull_request
+on:
+  pull_request:
+  workflow_call:
 
 permissions:
   contents: read
